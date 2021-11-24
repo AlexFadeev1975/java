@@ -14,4 +14,20 @@ public final class Book {
         this.countPages = countPages;
         this.numberISBN = numberISBN;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public int getCountPages() {
+        return countPages;
+    }
+
+    public int getNumberISBN() {
+        return numberISBN;
+    }
 }
