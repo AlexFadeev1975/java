@@ -2,25 +2,34 @@ public class Basket {
 
     private static int count = 0;
     private String items = "";
-    private int totalPrice = 0;
+    private static int totalPrice = 0;
     private int limit;
     private double totalWeight = 0;
+    public static int totalPriceAllItems = 0;
+    public static int totalCountAllItems = 0;
+    public static int averagePrice;
+    public static int countBaskets = 0;
+    public static int avePriceBasket;
 
     public Basket() {
         increaseCount(1);
         items = "Список товаров:";
         this.limit = 1000000;
+        totalCountBasket();
     }
 
     public Basket(int limit) {
         this();
         this.limit = limit;
+        totalCountBasket();
+
     }
 
     public Basket(String items, int totalPrice) {
         this();
         this.items = this.items + items;
         this.totalPrice = totalPrice;
+        totalCountBasket();
     }
 
     public static int getCount() {
@@ -29,6 +38,25 @@ public class Basket {
 
     public static void increaseCount(int count) {
         Basket.count = Basket.count + count;
+    }
+
+    public static void totalCountBasket() {
+        int countBasket = 1;
+        Basket.countBaskets = Basket.countBaskets + countBasket;
+    }
+
+    public static void allPriceCountItems() {
+        totalPriceAllItems = totalPriceAllItems + totalPrice;
+        totalCountAllItems = totalCountAllItems + count;
+    }
+
+    public static void averagePriceItem() {
+        averagePrice = totalPriceAllItems / totalCountAllItems;
+    }
+
+    public static void averagePriceBasket() {
+        avePriceBasket = totalPriceAllItems / countBaskets;
+
     }
 
     public void add(String name, int price) {
@@ -56,9 +84,12 @@ public class Basket {
         }
 
         items = items + "\n" + name + " - " +
-                count + " шт. - " + price + "  Вес за 1 шт:" + weight;
+                count + " шт. - " + price + " руб" + "  Вес за 1 шт: " + weight + "кг";
         totalPrice = totalPrice + count * price;
         totalWeight = totalWeight + count * weight;
+        allPriceCountItems();
+        averagePriceItem();
+        averagePriceBasket();
     }
 
     public void clear() {
@@ -70,7 +101,9 @@ public class Basket {
         return totalPrice;
     }
 
-    public double getTotalWeight() {return totalWeight; }
+    public double getTotalWeight() {
+        return totalWeight;
+    }
 
     public boolean contains(String name) {
         return items.contains(name);
@@ -82,6 +115,11 @@ public class Basket {
             System.out.println("Корзина пуста");
         } else {
             System.out.println(items);
+            System.out.println("Общая стоимость всех товаров: " + totalPriceAllItems + " руб"
+                    + "\n" + "Общая количество всех товаров: " + totalCountAllItems + " шт");
+            System.out.println("Средняя цена товара: " + averagePrice + " руб");
+            System.out.println("Средняя стоимость корзины: " + avePriceBasket + " руб");
+
         }
     }
 }
