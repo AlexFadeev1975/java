@@ -28,7 +28,7 @@ public class Basket {
     public Basket(String items, int totalPrice) {
         this();
         this.items = this.items + items;
-        this.totalPrice = totalPrice;
+        Basket.totalPrice = totalPrice;
         totalCountBasket();
     }
 
