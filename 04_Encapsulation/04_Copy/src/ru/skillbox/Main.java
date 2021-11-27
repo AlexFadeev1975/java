@@ -4,14 +4,10 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Dimensions dimCargo1 = new Dimensions(2, 2, 2);
-
-        dimCargo1.setLeight(8);
-
-        Cargo cargo = new Cargo(dimCargo1, 5, "kirov", true, true);
+        Dimensions dimCargo1 = new Dimensions(2, 2, 2).setLeight(8).setDepth(6);
 
 
-        cargo.setDiliveryAddress("Moskow");
+        Cargo cargo = new Cargo(dimCargo1, 5, "kirov", true, true).setDiliveryAddress("Moscow").setWeight(23.1);
 
 
         System.out.println(cargo);
