@@ -7,9 +7,9 @@ public class Basket {
     private double totalWeight = 0;
     public static int totalPriceAllItems = 0;
     public static int totalCountAllItems = 0;
-    public static int averagePrice;
+    public static double averagePrice;
     public static int countBaskets = 0;
-    public static int avePriceBasket;
+    public static double avePriceBasket;
 
     public Basket() {
         increaseCount(1);
@@ -51,11 +51,11 @@ public class Basket {
     }
 
     public static void averagePriceItem() {
-        averagePrice = totalPriceAllItems / totalCountAllItems;
+        averagePrice = (double) totalPriceAllItems / (double) totalCountAllItems;
     }
 
     public static void averagePriceBasket() {
-        avePriceBasket = totalPriceAllItems / countBaskets;
+        avePriceBasket = (double) totalPriceAllItems / (double) countBaskets;
 
     }
 
@@ -122,4 +122,5 @@ public class Basket {
 
         }
     }
+
 }
