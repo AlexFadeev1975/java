@@ -2,11 +2,11 @@ package ru.skillbox;
 
 public class Computer {
 
-    private final Processor processor;
-    private final Memory memory;
-    private final HardDisk hardDisk;
-    private final Display display;
-    private final KeyBoard keyboard;
+    public Processor processor;
+    public Memory memory;
+    public HardDisk hardDisk;
+    public Display display;
+    public KeyBoard keyboard;
     public double totalWeight;
     public final String vendor;
     public final String computerName;
@@ -23,28 +23,26 @@ public class Computer {
 
     }
 
-
-    public Computer setProcessor(Processor processor) {
-        return new Computer(vendor, computerName, processor, memory, hardDisk, display, keyboard);
+    public void setProcessor(Processor processor) {
+        this.processor = processor;
     }
 
-    public Computer setMemory(Memory memory) {
-
-        return new Computer(vendor, computerName, processor, memory, hardDisk, display, keyboard);
+    public void setMemory(Memory memory) {
+        this.memory = memory;
     }
 
-    public Computer setHardDisk(HardDisk hardDisk) {
-
-        return new Computer(vendor, computerName, processor, memory, hardDisk, display, keyboard);
+    public void setHardDisk(HardDisk hardDisk) {
+        this.hardDisk = hardDisk;
     }
 
-    public Computer setDisplay(Display display) {
-        return new Computer(vendor, computerName, processor, memory, hardDisk, display, keyboard);
+    public void setDisplay(Display display) {
+        this.display = display;
     }
 
-    public Computer setKeyboard(KeyBoard keyboard) {
-        return new Computer(vendor, computerName, processor, memory, hardDisk, display, keyboard);
+    public void setKeyboard(KeyBoard keyboard) {
+        this.keyboard = keyboard;
     }
+
 
     public Processor getProcessor() {
         return processor;
