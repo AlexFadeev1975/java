@@ -4,7 +4,7 @@ public class Display {
 
     private final double screenSize;
     private final DisplayType displayType;
-    public final int weight;
+    private final int weight;
 
     public enum DisplayType {
 

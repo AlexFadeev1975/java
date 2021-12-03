@@ -1,10 +1,10 @@
 package ru.skillbox;
 
 public class Processor {
-    public int frequency;
-    public int coreNumber;
-    public String vendor;
-    public double weight;
+    private final int frequency;
+    private final int coreNumber;
+    private final String vendor;
+    private final double weight;
 
     public Processor(int frequency, int coreNumber, String vendor, double weight) {
         this.frequency = frequency;

@@ -4,7 +4,7 @@ public class HardDisk {
 
     private final HardDiskType type;
     private final int capacity;
-    public final double weight;
+    private final double weight;
 
     public enum HardDiskType {
 
@@ -25,10 +25,7 @@ public class HardDisk {
         return new HardDisk(type, capacity, weight);
     }
 
-    public HardDisk setWeight(double weight) {
-
-        return new HardDisk(type, capacity, weight);
-    }
+    public HardDisk setWeight(double weight) { return new HardDisk(type, capacity, weight); }
 
     public HardDiskType getType() {
         return type;

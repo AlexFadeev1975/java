@@ -2,9 +2,9 @@ package ru.skillbox;
 
 public class KeyBoard {
 
-    public String keyBoardType;
-    public HaveLightning haveLighting;
-    public double weight;
+    private final String keyBoardType;
+    private final HaveLightning haveLighting;
+    private final double weight;
 
     public enum HaveLightning {YES, NO}
 
@@ -30,9 +30,9 @@ public class KeyBoard {
         return keyBoardType;
     }
 
-    //public boolean isHaveLighting() {
-    // return haveLighting;
-    //}
+    public HaveLightning isHaveLighting() {
+        return haveLighting;
+    }
 
     public double getWeight() {
         return weight;

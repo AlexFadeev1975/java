@@ -2,9 +2,9 @@ package ru.skillbox;
 
 public class Memory {
 
-    public String type;
-    public int capacity;
-    public double weight;
+    private final String type;
+    private final int capacity;
+    private final double weight;
 
     public Memory(String type, int capacity, double weight) {
         this.type = type;
