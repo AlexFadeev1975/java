@@ -11,21 +11,20 @@ public class HardDisk {
         HDD, SSD
     }
 
-    public HardDisk(HardDiskType type, int capacity, double weight) {
+    public HardDisk(HardDiskType type, int capacity) {
         this.type = type;
         this.capacity = capacity;
-        this.weight = weight;
+        weight = 800;
     }
 
     public HardDisk setType(HardDiskType type) {
-        return new HardDisk(type, capacity, weight);
+        return new HardDisk(type, capacity);
     }
 
     public HardDisk setCapacity(int capacity) {
-        return new HardDisk(type, capacity, weight);
+        return new HardDisk(type, capacity);
     }
 
-    public HardDisk setWeight(double weight) { return new HardDisk(type, capacity, weight); }
 
     public HardDiskType getType() {
         return type;

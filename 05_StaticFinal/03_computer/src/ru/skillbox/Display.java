@@ -11,23 +11,18 @@ public class Display {
         IPS, TN, VA
     }
 
-    public Display(double screenSize, DisplayType displayType, int weight) {
+    public Display(double screenSize, DisplayType displayType) {
         this.screenSize = screenSize;
         this.displayType = displayType;
-        this.weight = weight;
+        weight = 4000;
     }
 
     public Display setScreenSize(double screenSize) {
-        return new Display(screenSize, displayType, weight);
+        return new Display(screenSize, displayType);
     }
 
     public Display setDisplayType(DisplayType displayType) {
-        return new Display(screenSize, displayType, weight);
-    }
-
-    public Display setWeight(int weight) {
-
-        return new Display(screenSize, displayType, weight);
+        return new Display(screenSize, displayType);
     }
 
     public double getScreenSize() {
