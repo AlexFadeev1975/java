@@ -13,13 +13,13 @@ public class Main {
 
                 System.out.println(i + " - " + (char) i);
             }
-            if ((char) i == 'А') {
-                for (i = (int) 'А'; i <= (int) 'я'; i++) {
-                    System.out.println(i + " - " + (char) i);
-                }
+            if ((char) i >= 'А' && i <= 'я') {
+
+                System.out.println(i + " - " + (char) i);
             }
         }
-
-
     }
+
+
 }
+
