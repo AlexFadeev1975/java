@@ -1,34 +1,31 @@
 package ru.skillbox;
 
 public class Processor {
-    public int frequency;
-    public int coreNumber;
-    public String vendor;
-    public double weight;
+    private final int frequency;
+    private final int coreNumber;
+    private final String vendor;
+    private final double weight;
 
-    public Processor(int frequency, int coreNumber, String vendor, double weight) {
+    public Processor(int frequency, int coreNumber, String vendor) {
         this.frequency = frequency;
         this.coreNumber = coreNumber;
         this.vendor = vendor;
-        this.weight = weight;
+        weight = 300;
     }
 
 
     public Processor setFrequency(int frequency) {
-        return new Processor(frequency, coreNumber, vendor, weight);
+        return new Processor(frequency, coreNumber, vendor);
     }
 
     public Processor setCoreNumber(int coreNumber) {
-        return new Processor(frequency, coreNumber, vendor, weight);
+        return new Processor(frequency, coreNumber, vendor);
     }
 
     public Processor setVendor(String vendor) {
-        return new Processor(frequency, coreNumber, vendor, weight);
+        return new Processor(frequency, coreNumber, vendor);
     }
 
-    public Processor setWeight(double weight) {
-        return new Processor(frequency, coreNumber, vendor, weight);
-    }
 
     public int getFrequency() {
         return frequency;

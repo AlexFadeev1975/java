@@ -2,26 +2,27 @@ package ru.skillbox;
 
 public class Memory {
 
-    public String type;
-    public int capacity;
-    public double weight;
+    private final String type;
+    private final int capacity;
+    private final double weight;
 
-    public Memory(String type, int capacity, double weight) {
+    public Memory(String type, int capacity) {
         this.type = type;
         this.capacity = capacity;
-        this.weight = weight;
+        weight = 200;
     }
 
     public Memory setType(String type) {
-        return new Memory(type, capacity, weight);
+        return new Memory(type, capacity);
     }
 
     public Memory setCapacity(int capacity) {
-        return new Memory(type, capacity, weight);
+        return new Memory(type, capacity);
     }
 
-    public Memory setWeight(double weight) {
-        return new Memory(type, capacity, weight);
+
+    public double getWeight() {
+        return weight;
     }
 
     public String getType() {
@@ -30,10 +31,6 @@ public class Memory {
 
     public int getCapacity() {
         return capacity;
-    }
-
-    public double getWeight() {
-        return weight;
     }
 
     public String toString() {

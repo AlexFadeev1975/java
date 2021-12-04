@@ -2,14 +2,14 @@ package ru.skillbox;
 
 public class Computer {
 
-    public Processor processor;
-    public Memory memory;
-    public HardDisk hardDisk;
-    public Display display;
-    public KeyBoard keyboard;
-    public double totalWeight;
-    public final String vendor;
-    public final String computerName;
+    private Processor processor;
+    private Memory memory;
+    private HardDisk hardDisk;
+    private Display display;
+    private KeyBoard keyboard;
+    private double totalWeight;
+    private final String vendor;
+    private final String computerName;
 
     public Computer(String vendor, String computerName, Processor processor, Memory memory, HardDisk hardDisk, Display display, KeyBoard keyboard) {
         this.vendor = vendor;
@@ -19,7 +19,7 @@ public class Computer {
         this.hardDisk = hardDisk;
         this.display = display;
         this.keyboard = keyboard;
-        Totalweight();
+        totalweight();
 
     }
 
@@ -64,8 +64,9 @@ public class Computer {
         return keyboard;
     }
 
-    public void Totalweight() {
-        totalWeight = processor.weight + memory.weight + hardDisk.weight + display.weight + keyboard.weight;
+
+    public void totalweight() {
+        totalWeight = processor.getWeight() + hardDisk.getWeight() + display.getWeight() + keyboard.getWeight() + memory.getWeight();
     }
 
     public String toString() {
