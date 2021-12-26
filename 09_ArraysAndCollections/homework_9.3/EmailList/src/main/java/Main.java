@@ -1,4 +1,3 @@
-import java.util.Locale;
 import java.util.Scanner;
 
 public class Main {
@@ -30,27 +29,27 @@ public class Main {
             if (input.equals("0")) {
                 break;
             }
-            if (input.matches("([ADLIST]{3,4}\\s\\w+@\\w+[.]\\w{2})|([LIST]+)")) {
-                String commandAdd = input.substring(0, 3);
-                String commandList = input.substring(0, 4);
+            String commandAdd = input.substring(0, 3);
+            String commandList = input.substring(0, 4);
 
-                if (commandAdd.matches("^[ADD]+")) {
+            if (commandAdd.matches("^[ADD]+")) {
 
-                    String mail = input.substring(4);
-                    mail = mail.trim();
-                    list.add(mail.toLowerCase(Locale.ROOT));
+                String mail = input.substring(4);
+                mail = mail.trim();
+                list.add(mail);
+                if (list.successAdd == false) {
+                    System.out.println(WRONG_EMAIL_ANSWER);
                 }
-                if (commandList.matches("^[LIST]+")) {
+            }
+            if (commandList.matches("^[LIST]+")) {
 
-                    list.getSortedEmails().forEach(elem -> System.out.println(elem));
-                }
-            } else {
-                System.out.println(WRONG_EMAIL_ANSWER);
+                list.getSortedEmails().forEach(elem -> System.out.println(elem));
             }
 
         }
     }
 }
+
 
 
 
