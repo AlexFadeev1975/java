@@ -9,7 +9,7 @@ public class EmailList {
 
     public Stream<String> add(String email) {
         // TODO: валидный формат email добавляется
-        if (email.matches("\\w+@\\w+[.]\\w{2,3}")) {
+        if (email.matches("[\\w-\\.]+@[\\w-\\.]+[.]\\w{2,3}")) {
             email = email.toLowerCase(Locale.ROOT);
             emailList.add(email);
             successAdd = true;
