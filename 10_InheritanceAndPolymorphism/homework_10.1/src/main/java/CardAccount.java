@@ -1,10 +1,11 @@
 public class CardAccount extends BankAccount {
 
+    static final double FEEINCASH = 0.01;
+
     @Override
-    public void take(double amountToTake) {
-        // не забывайте, обращаться к методам и конструкторам родителя
-        // необходимо используя super, например, super.put(10D);
-        double bankFeeInCash = 0.01;
-        super.take(amountToTake + amountToTake * bankFeeInCash);
+    protected void take(double amountToTake) {
+
+        super.take(amountToTake + amountToTake * FEEINCASH);
     }
 }
+

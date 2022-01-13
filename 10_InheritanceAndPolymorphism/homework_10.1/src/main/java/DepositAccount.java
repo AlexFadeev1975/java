@@ -12,7 +12,7 @@ public class DepositAccount extends BankAccount {
     }
 
     @Override
-    public void take(double amountToTake) {
+    protected void take(double amountToTake) {
 
         if (LocalDate.now().isAfter(lastIncome)) {
             super.take(amountToTake);
