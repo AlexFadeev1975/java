@@ -1,11 +1,11 @@
 public class Operator implements Employee {
 
     int salary;
-    String nameCompany;
+    Company company;
 
-    Operator(int fixedSalary) {
-        this.nameCompany = Company.nameCompany;
-        salary = fixedSalary;
+    Operator(Company company) {
+        this.company = company;
+        salary = ((int) ((Math.random() * 5000) + 10000));
     }
 
     @Override
@@ -13,6 +13,5 @@ public class Operator implements Employee {
 
         return salary;
     }
-
 
 }

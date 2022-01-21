@@ -1,12 +1,13 @@
 public class Manager implements Employee {
 
-    int salary;
-    String nameCompany;
+    int salary, fixedSalary;
     final int BONUS = 5;
+    Company company;
 
-    Manager(int fixedSalary) {
-        this.nameCompany = Company.nameCompany;
-        salary = fixedSalary + Company.income * BONUS / 100;
+    Manager(Company company) {
+        this.company = company;
+        fixedSalary = ((int) ((Math.random() * 10000) + 20000));
+        salary = fixedSalary + company.income * BONUS / 100;
     }
 
     @Override
@@ -15,6 +16,5 @@ public class Manager implements Employee {
 
         return salary;
     }
-
 }
 

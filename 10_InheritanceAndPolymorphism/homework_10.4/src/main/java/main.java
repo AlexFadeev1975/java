@@ -4,9 +4,11 @@ public class main {
 
         Company company = new Company("Шариков", 80, 10, 180, 115000, 140000);
 
-        company.printList(company.getTopSalaryStaff(15));
+        company.headHunter(company, company.countManager, company.countTopManager, company.countOperator);
+
+        company.printList(company.getTopSalaryStaff(company.listEmployee, 15));
         System.out.println();
-        company.printList(company.getLowestSalaryStaff(30));
+        company.printList(company.getLowestSalaryStaff(company.listEmployee, 30));
         System.out.println();
 
         int totalCountPerson = company.listEmployee.size();
@@ -14,9 +16,8 @@ public class main {
             int personNumber = (int) (Math.random() * (company.listEmployee.size()));
             company.fire(personNumber);
         }
-
-        company.printList(company.getTopSalaryStaff(15));
+        company.printList(company.getTopSalaryStaff(company.listEmployee, 15));
         System.out.println();
-        company.printList(company.getLowestSalaryStaff(30));
+        company.printList(company.getLowestSalaryStaff(company.listEmployee, 30));
     }
 }
