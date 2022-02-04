@@ -15,8 +15,25 @@ public class CustomerStorage {
         final int INDEX_PHONE = 3;
 
         String[] components = data.split("\\s+");
+        if (components.length != 4) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        if (!components[INDEX_NAME].matches("[a-zA-Zа-яА-ЯёЁ]+")) {
+            throw new IllegalArgumentException();
+        }
+        if (!components[INDEX_SURNAME].matches("[a-zA-Zа-яА-ЯёЁ\\-']+")) {
+            throw new IllegalArgumentException();
+        }
+        if (!components[INDEX_PHONE].matches("^[+]?[7,8]{1}[0-9]{10}$")) {
+            throw new IllegalArgumentException();
+        }
+        if (!components[INDEX_EMAIL].matches("[\\w-\\.]+@[\\w-\\.]+[.]\\w{2,3}")) {
+            throw new IllegalArgumentException();
+        }
         String name = components[INDEX_NAME] + " " + components[INDEX_SURNAME];
+
         storage.put(name, new Customer(name, components[INDEX_PHONE], components[INDEX_EMAIL]));
+
     }
 
     public void listCustomers() {
@@ -24,7 +41,14 @@ public class CustomerStorage {
     }
 
     public void removeCustomer(String name) {
-        storage.remove(name);
+        try {
+            if (!storage.containsKey(name)) {
+                throw new IllegalArgumentException("Такого имени не существует");
+            }
+            storage.remove(name);
+        } catch (IllegalArgumentException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     public Customer getCustomer(String name) {
