@@ -116,4 +116,13 @@ public class RouteCalculatorTest extends TestCase {
 
         assertEquals(expected0, actual0);
     }
+
+    public void testToString() {
+
+        String lineName = route2.get(0).getLine().getName();
+        String stationName = route2.get(1).toString();
+
+        assertEquals("Три Елизаровская", lineName + " " + stationName);
+
+    }
 }
