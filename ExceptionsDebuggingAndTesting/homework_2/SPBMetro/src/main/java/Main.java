@@ -35,15 +35,14 @@ public class Main {
                 List<Station> route = calculator.getShortestRoute(from, to);
                 System.out.println("Маршрут:");
                 printRoute(route);
-
                 System.out.println("Длительность: " +
                         RouteCalculator.calculateDuration(route) + " минут");
-            } catch (Exception ex) {
-                loggerException.error("Ошибка", ex);
+            } catch (IllegalArgumentException ex) {
+                loggerException.error("Ошибка ввода данных", ex);
+                System.out.println(ex.getMessage());
             }
         }
     }
-
     private static RouteCalculator getRouteCalculator() {
         createStationIndex();
         return new RouteCalculator(stationIndex);
@@ -69,6 +68,9 @@ public class Main {
         for (; ; ) {
             System.out.println(message);
             String line = scanner.nextLine().trim();
+            if (line == "") {
+                throw new IllegalArgumentException("Станция не введена ");
+            }
             Station station = stationIndex.getStation(line);
             if (station != null) {
                 loggerInfo.info("станция  " + line);
