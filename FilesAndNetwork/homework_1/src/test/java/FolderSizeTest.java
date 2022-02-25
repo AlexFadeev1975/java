@@ -32,7 +32,7 @@ public class FolderSizeTest {
 
     @Test
     @DisplayName("Подсчет размера всех файлов в директории без поддиректорий")
-    void testFilesSizeInPlainDirectory()  {
+    void testFilesSizeInPlainDirectory() throws Exception {
         List<Path> files = fillDirectory(tempDirectory);
         writeContent(files);
 
@@ -42,7 +42,7 @@ public class FolderSizeTest {
 
     @Test
     @DisplayName("Подсчет размера всех файлов в директории с поддиректориями")
-    void testFilesSizeDirectoryWithSubDir() throws IOException {
+    void testFilesSizeDirectoryWithSubDir() throws Exception {
         List<Path> files = fillDirectory(tempDirectoryWithSubDirs);
         files.addAll(fillDirectory(createSubDirectory()));
         writeContent(files);
