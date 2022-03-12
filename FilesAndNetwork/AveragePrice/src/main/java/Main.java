@@ -11,7 +11,7 @@ public class Main {
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT course_name, COUNT(student_name) / MAX(MONTH(subscription_date)) " +
                                                      "as c FROM purchaselist WHERE YEAR(subscription_date) = 2018 GROUP BY course_name");
-        while (resultSet.next()) {
+        while (resultSet.next() ) {
 
             System.out.println(resultSet.getString("course_name") + "        " + resultSet.getString("c"));
         }
