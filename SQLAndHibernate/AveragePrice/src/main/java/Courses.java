@@ -1,4 +1,7 @@
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "Courses")
@@ -13,13 +16,21 @@ public class Courses {
     @Column(columnDefinition = "enum")
     private CourseTypes type;
     private String description;
-    @Column(name = "teacher_id")
-    private int teacherID;
     @Column(name = "students_count")
     private Integer studentsCount;
     private int price;
     @Column(name = "price_per_hour")
     private float pricePerHour;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id", updatable = false, insertable = false)
+    private Teacher teacher;
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
+    private List<Subscription> subscriptionList;
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    @JoinTable(name = "subscriptions",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id"))
+    private Set<Student> studentsSet = new HashSet<>();
 
     public void setId(int id) {
         this.id = id;
@@ -41,8 +52,8 @@ public class Courses {
         this.description = description;
     }
 
-    public void setTeacherID(int teacherID) {
-        this.teacherID = teacherID;
+    public void setTeacher(Teacher teacher) {
+        this.teacher = teacher;
     }
 
     public void setStudentsCount(Integer studentsCount) {
@@ -77,8 +88,8 @@ public class Courses {
         return description;
     }
 
-    public int getTeacherID() {
-        return teacherID;
+    public Teacher getTeacher() {
+        return teacher;
     }
 
     public Integer getStudentsCount() {
@@ -92,4 +103,18 @@ public class Courses {
     public float getPricePerHour() {
         return pricePerHour;
     }
+
+    public Set<Student> getStudentsSet() {
+        return studentsSet;
+    }
+    public void setStudentsSet(Set<Student> studentsSet) {
+        this.studentsSet = studentsSet;
+    }
+    public List<Subscription> getSubscriptionList() {
+        return subscriptionList;
+    }
+    public void setSubscriptionList(List<Subscription> subscriptionList) {
+        this.subscriptionList = subscriptionList;
+    }
+
 }
