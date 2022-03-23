@@ -10,6 +10,9 @@ import java.io.Serializable;
 @Entity
 @Table(name = "linkedpurchaselist")
 public class LinkedPurchaseList {
+
+    @EmbeddedId
+    private Id id;
     @javax.persistence.Id
     @Column(name = "student_id")
     private int studentId;
@@ -31,8 +34,16 @@ public class LinkedPurchaseList {
         @Column(name = "course_id", updatable = false, insertable = false)
         protected int courseId;
 
+        public Id() {}
 
+        public Id(int studentId, int courseId) {
+            this.studentId = studentId;
+            this.courseId = courseId;
+        }
     }
+    public Id getId() { return id; }
+
+    public void setId(Id id) { this.id = id; }
 
     public int getStudentId() {
         return studentId;
