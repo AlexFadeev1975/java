@@ -33,11 +33,11 @@ public class Main {
             array.put(nameFilesArray, filesArray);
             nameFilesArray++;
         }
-         Thread [] threads = new Thread[array.size()];
+        Thread[] threads = new Thread[array.size()];
         for (int i = 0; i < array.size(); i++) {
             threads[i] = new ImageResizer(array.get(i), dstFolder, intWight);
         }
-        Arrays.stream(threads).forEach(Thread::run);
+        Arrays.stream(threads).forEach(Thread::start);
 
-        }
     }
+}
