@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,8 +33,11 @@ public class Main {
             array.put(nameFilesArray, filesArray);
             nameFilesArray++;
         }
+         Thread [] threads = new Thread[array.size()];
         for (int i = 0; i < array.size(); i++) {
-            new ImageResizer(array.get(i), dstFolder, intWight).run();
+            threads[i] = new ImageResizer(array.get(i), dstFolder, intWight);
+        }
+        Arrays.stream(threads).forEach(Thread::run);
+
         }
     }
-}

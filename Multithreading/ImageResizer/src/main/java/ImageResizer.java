@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class ImageResizer implements Runnable {
+public class ImageResizer extends Thread {
 
     private File[] files;
     private String dstFolder;
