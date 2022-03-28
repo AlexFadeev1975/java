@@ -1,5 +1,4 @@
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,14 +8,14 @@ public class Main {
         String srcFolder = "D://src";
         String dstFolder = "D://dst";
         int intWight = 800;
-
-        int core = Runtime.getRuntime().availableProcessors();
-        File srcDir = new File(srcFolder);
-
-        File[] files = srcDir.listFiles();
         int nameFilesArray = 0;
         int size;
         Map<Integer, File[]> array = new HashMap<>();
+
+        int core = Runtime.getRuntime().availableProcessors();
+        File srcDir = new File(srcFolder);
+        File[] files = srcDir.listFiles();
+
         assert files != null;
         if (files.length > core) {
             size = files.length / (core - 1);
@@ -24,9 +23,8 @@ public class Main {
             size = 1;
         }
         for (int i = 0; i < files.length; i = i + size) {
-            if (i >= files.length / (core - 1) * (core - 1)) {
-                i = files.length - 1;
-                size = files.length - size * (core - 1);
+            if (i >= size * (core - 1)) {
+            size = files.length - size * (core - 1);
             }
             File[] filesArray = new File[size];
             System.arraycopy(files, i, filesArray, 0, size);
@@ -37,7 +35,8 @@ public class Main {
         for (int i = 0; i < array.size(); i++) {
             threads[i] = new ImageResizer(array.get(i), dstFolder, intWight);
         }
-        Arrays.stream(threads).forEach(Thread::start);
-
+        for (Thread thread : threads) {
+            thread.start();
+        }
     }
 }
