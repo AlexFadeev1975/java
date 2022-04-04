@@ -3,6 +3,11 @@ public class Account {
     private long money;
     private String accNumber;
 
+    public Account(String accNumber, long money) {
+        this.money = money;
+        this.accNumber = accNumber;
+    }
+
     public long getMoney() {
         return money;
     }
@@ -19,3 +24,4 @@ public class Account {
         this.accNumber = accNumber;
     }
 }
+
