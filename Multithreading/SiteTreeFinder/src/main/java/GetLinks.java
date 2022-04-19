@@ -1,11 +1,10 @@
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
@@ -13,21 +12,21 @@ public class GetLinks {
     String fileName;
 
     public GetLinks(String url) {
-        readAllLinks links = new readAllLinks(url);
+        ReadAllLinks links = new ReadAllLinks(url);
         int i = url.indexOf(".");
-        readAllLinks.site = url.substring(i + 1);
+        ReadAllLinks.site = "//" + url.substring(i + 1);
         ForkJoinPool forkJoinPool = new ForkJoinPool();
         forkJoinPool.invoke(links);
     }
 
-    static class readAllLinks extends RecursiveAction {
+    static class ReadAllLinks extends RecursiveAction {
 
         public static Set<String> setLinks = new HashSet<String>();
-        public static Set<String> resultLinks = new TreeSet<>();
+        public static SortedSet<String> resultLinks = new TreeSet<>();
         public static String site;
         public static String line;
 
-        public readAllLinks(String line) {
+        public ReadAllLinks(String line) {
 
             this.line = line;
         }
@@ -49,18 +48,24 @@ public class GetLinks {
                     if (add && reference.contains(site)) {
                         resultLinks.add(reference);
                         System.out.println(reference);
-                        new readAllLinks(reference);
+                        new ReadAllLinks(reference);
 
                     }
                 } else {
+                    List<ReadAllLinks> taskList = new ArrayList<>();
                     links.stream().map((link) -> link.attr("abs:href")).forEachOrdered((reference) -> {
                         boolean add = setLinks.add(reference);
                         if (add && reference.contains(site)) {
                             resultLinks.add(reference);
                             System.out.println(reference);
-                            new readAllLinks(reference);
+                            ReadAllLinks task = new ReadAllLinks(reference);
+                            task.fork();
+                            taskList.add(task);
                         }
                     });
+                    for (ReadAllLinks task : taskList) {
+                        task.join();
+                    }
                 }
 
             } catch (IOException | InterruptedException ex) {
@@ -93,14 +98,24 @@ public class GetLinks {
 
     public Set<String> comparator(Set<String> list) {
 
-        TreeSet<String> newList = new TreeSet<>(String::compareTo);
+        SortedSet<String> newList = new TreeSet<>((o1, o2) -> {
+            if (Objects.equals(o1, o2)) {
+                return 0;
+            }
+            if (o2.contains(o1)) {
+                return -1;
+            } else {
+                return 1;
+            }
+        });
 
         for (String link : list) {
             String[] arr = link.split("/");
             String newlink = tab(arr.length - 3) + link;
             newList.add(newlink);
+            newList.comparator().reversed();
         }
-        return newList.descendingSet();
+        return newList;
     }
 
     public String tab(int count) {

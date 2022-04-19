@@ -1,14 +1,12 @@
-import java.io.IOException;
-
 public class Main {
 
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
 
-        String url = "https://www.lenta.ru";
+        String url = "https://www.skillbox.ru";
         String fileName = "D:/SiteMap.txt";
 
         GetLinks getLinks = new GetLinks(url);
-        getLinks.writer(getLinks.comparator(GetLinks.readAllLinks.resultLinks), fileName);
+        getLinks.writer(getLinks.comparator(GetLinks.ReadAllLinks.resultLinks), fileName);
 
 
     }
