@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список дел</title>
+    <style type="text/css">
+        h1 { color: green
+            font-family: "Verdana", cursive }
+
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+</head>
+<body>
+<h1> Список дел </h1><br><br>
+<div id="block">
+
+    <input type="button" , onclick="renewList()" , value="Обновить">
+    <input type="button" , onclick="deleteAll()" , value="Очистить список">
+    <input type="button" , onclick="file()" , value="Заменить список">
+
+</div>
+<br>
+<div>
+    <ul id="list"></ul>
+</div>
+<br>
+<p> добавить дело
+    <input type="button" , onclick="addTask()" , value="Нажмите для добавления дела">
+</p>
+<script>
+   async function file() {
+    var res = "0";
+    var input = document.createElement('input');
+     input.type = 'file';
+     input.onchange = e => {
+   var file = e.target.files[0];
+   var reader = new FileReader();
+   reader.readAsText(file,'UTF-8');
+   reader.onload = readerEvent => {
+      res = readerEvent.target.result;
+      console.log(res);
+       allChange(res);
+   }
+}
+   input.click();
+}
+
+</script>
+<script>
+  async function allChange(res) {
+
+    let data = new FormData();
+    data.append("toDos", res);
+    console.log(res);
+    var url = "/todolist/";
+    let request = new Request (url, {
+    method: "PUT",
+    body: data,
+    headers: new Headers()
+    });
+        let item = await fetch(request);
+        console.log(item);
+        renewList();
+   }
+
+</script>
+<script>
+    async function renewList() {
+        var url = "http://localhost:8080/todolist/";
+        let item = await fetch(url);
+
+    if (item.ok) {
+    let json = await item.json();
+    console.log(json);
+    var text = "";
+    var output = "<ol>";
+
+    var list = document.getElementById('list');
+    $("#list").empty();
+    for (let i =0; i < json.length; i++) {
+    console.log (json[i]);
+      var li = document.createElement("LI");
+      li.textContent = json[i].task;
+      li.insertAdjacentHTML('beforeEnd', '&nbsp;<button>удалить</button> <button>изменить</button>');
+      list.appendChild(li);
+      }
+}
+}
+    list.onclick = removeOrEditItem;
+
+   function removeOrEditItem(e) {
+   var tgt = e.target;
+   let index = tgt.closest('li').textContent;
+   console.log(index);
+   let lastIndex = index.indexOf("удалить") - 1;
+   console.log(lastIndex);
+   var task = index.substring(0,lastIndex);
+    if (tgt.innerHTML === "удалить") {
+    deleteLink(task);
+    tgt.closest('li').remove();
+  }
+    if (tgt.innerHTML === "изменить") {
+    console.log(index);
+    let newTask = prompt ("Чем заменить?   ", "введите новое дело");
+    let oldNewTasks = task + "," + newTask;
+    editTask(oldNewTasks);
+    }
+    return false;
+}
+
+</script>
+<script>
+async function addTask() {
+    var task = prompt ("Введите дело:  ", "пусто");
+    let data = new FormData();
+    data.append( "toDo",task);
+    console.log(task);
+    var url = "/todolist/";
+    let request = new Request (url, {
+    method: "POST",
+    body: data,
+    headers: new Headers()
+    });
+        let item = await fetch(request);
+        console.log(item);
+         renewList();
+        }
+
+</script>
+<script>
+    async function editTask (oldNewTask) {
+    var url = "/todolist/" + oldNewTask;
+    let request = new Request (url, {
+    method: "PATCH",
+    headers: new Headers()
+    });
+        let item = await fetch(request);
+        console.log(item);
+        renewList();
+         }
+
+</script>
+<script>
+    async function deleteLink (index) {
+    var url = "/todolist/" + index;
+    let request = new Request (url, {
+    method: "DELETE",
+    headers: new Headers()
+    });
+        let item = await fetch(request);
+        console.log(item);
+         }
+
+</script>
+<script>
+     async function deleteAll () {
+     var url = "/todolist/";
+     let request = new Request (url, {
+        method: "DELETE",
+       headers: new Headers()
+     });
+     let item = await fetch(request);
+     console.log(item);
+     renewList();
+     }
+
+</script>
+
+</body>
+
+</html>

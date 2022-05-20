@@ -107,12 +107,15 @@ public class Courses {
     public Set<Student> getStudentsSet() {
         return studentsSet;
     }
+
     public void setStudentsSet(Set<Student> studentsSet) {
         this.studentsSet = studentsSet;
     }
+
     public List<Subscription> getSubscriptionList() {
         return subscriptionList;
     }
+
     public void setSubscriptionList(List<Subscription> subscriptionList) {
         this.subscriptionList = subscriptionList;
     }

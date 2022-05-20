@@ -1,6 +1,8 @@
 package main;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Storage {
@@ -15,19 +17,37 @@ public class Storage {
         return id;
     }
 
-    public static void addAll(List<String> list) {
-        list.forEach(Storage::add);
-
+    public static void editAll(String task) {
+        String[] toDos = task.split("\r\n");
+        toDoList.clear();
+        for (int i = 0; i < toDos.length; i++) {
+            add(toDos[i]);
+        }
     }
 
-    public static void edit(int id, String task) {
-        ToDo newToDo = new ToDo(task);
+    public static void edit(String tasks) {
+        int id = 0;
+        String[] arrTasks = tasks.split(",");
+        Set<Map.Entry<Integer, ToDo>> set = toDoList.entrySet();
+        for (Map.Entry<Integer, ToDo> item : set) {
+            if (item.getValue().task.equals(arrTasks[0])) {
+                id = item.getKey();
+            }
+        }
+        ToDo newToDo = new ToDo(arrTasks[1]);
         toDoList.replace(id, newToDo);
     }
 
-    public static void deleteId(int id) {
+    public static void deleteId(String task) {
 
-        toDoList.remove(id);
+        Set<Map.Entry<Integer, ToDo>> set = toDoList.entrySet();
+        for (Map.Entry<Integer, ToDo> item : set) {
+            if (item.getValue().task.equals(task)) {
+                int id = item.getKey();
+                toDoList.remove(id);
+            }
+        }
+
     }
 
     public static List<ToDo> getList() {

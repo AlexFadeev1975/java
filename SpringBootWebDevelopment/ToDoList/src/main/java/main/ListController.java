@@ -14,55 +14,40 @@ public class ListController {
         return Storage.add(toDo);
     }
 
-    @PostMapping("/todolist/")
-    public void addAll(List<String> list) {
+    @PutMapping("/todolist/")
+    public void editAll(String toDos) {
 
-        Storage.addAll(list);
+        Storage.editAll(toDos);
     }
 
-    @PatchMapping("/todolist/{id}")
-    public ResponseEntity replace(@PathVariable int id, String toDo) {
+    @PatchMapping("/todolist/{tasks}")
+    public void replace(@PathVariable(name = "tasks") String tasks) {
 
-        if (Storage.toDoList.containsKey(id)) {
-            Storage.edit(id, toDo);
+                 Storage.edit(tasks);
+
+    }
+
+    @DeleteMapping("/todolist/{task}")
+    public ResponseEntity deleteId(@PathVariable(name = "task") String task) {
+
+        if (!Storage.toDoList.containsValue(task)) {
+            Storage.deleteId(task);
             return ResponseEntity.status(HttpStatus.OK).body(null);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
-    @DeleteMapping("/todolist/{id}")
-    public ResponseEntity deleteId(@PathVariable int id) {
-
-        if (Storage.toDoList.containsKey(id)) {
-            Storage.deleteId(id);
-            return ResponseEntity.status(HttpStatus.OK).body(null);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-    }
-
-    @GetMapping("/todolist/{id}")
-    public ResponseEntity getId(@PathVariable int id) {
-
-        if (Storage.toDoList.containsKey(id)) {
-            ToDo toDo = Storage.getId(id);
-            return new ResponseEntity(toDo, HttpStatus.OK);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-    }
-
-    @GetMapping("/todolist/")
+      @GetMapping("/todolist/")
     public List<ToDo> getAll() {
 
         return Storage.getList();
     }
 
-    @DeleteMapping("/todolist/")
-    public void deleteAll() {
+   @DeleteMapping("/todolist/")
+  public void deleteAll() {
 
-        Storage.deleteAll();
-    }
+  Storage.deleteAll();
+   }
 
 }

@@ -16,7 +16,7 @@ public class Student {
     @Column(name = "registration_date")
     private Date registrationDate;
     @ManyToMany(mappedBy = "studentsSet")
-    protected Set<Courses> coursesSet = new HashSet<>();
+    private Set<Courses> coursesSet = new HashSet<>();
     @OneToMany(mappedBy = "student", fetch = FetchType.LAZY)
     private List<Subscription> subscriptionList;
 
@@ -63,6 +63,7 @@ public class Student {
     public List<Subscription> getSubscriptionList() {
         return subscriptionList;
     }
+
     public void setSubscriptionList(List<Subscription> subscriptionList) {
         this.subscriptionList = subscriptionList;
     }
