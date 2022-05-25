@@ -1,4 +1,5 @@
 package main;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,12 +58,9 @@ public class Storage {
 
     public static void deleteAll() {
 
+
         toDoList.clear();
         ID = 1;
     }
 
-    public static ToDo getId(int id) {
-
-        return toDoList.get(id);
-    }
 }
