@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Список дел</title>
     <style type="text/css">
         h1 { color: green
             font-family: "Verdana", cursive }
+
 
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"
@@ -15,18 +16,22 @@
 <h1> Список дел </h1><br><br>
 <div id="block">
 
-    <input type="button" , onclick="renewList()" , value="Обновить">
-    <input type="button" , onclick="deleteAll()" , value="Очистить список">
-    <input type="button" , onclick="file()" , value="Заменить список">
+    <input type="button" onclick="renewList()" value="Обновить">
+    <input type="button" onclick="deleteAll()" value="Очистить список">
+    <input type="button" onclick="file()" value="Заменить список">
 
 </div>
 <br>
-<div>
-    <ul id="list"></ul>
-</div>
-<br>
+<ol id="list" onclick="removeOrEditItem">
+    <li th:each="tasks: ${toDo}">
+        <span th:text="${tasks.task}"></span>
+        <button>удалить</button>
+        <button>изменить</button>
+    </li>
+</ol>
+
 <p> добавить дело
-    <input type="button" , onclick="addTask()" , value="Нажмите для добавления дела">
+    <input type="button" onclick="addTask()" value="Нажмите для добавления дела">
 </p>
 <script>
    async function file() {
@@ -46,6 +51,7 @@
    input.click();
 }
 
+
 </script>
 <script>
   async function allChange(res) {
@@ -61,26 +67,27 @@
     });
         let item = await fetch(request);
         console.log(item);
-        renewList();
+   //     renewList();
    }
+
 
 </script>
 <script>
-    async function renewList() {
-        var url = "http://localhost:8080/todolist/";
+   async function renewList() {
+       var url = "http://localhost:8080/todolist/";
         let item = await fetch(url);
 
-    if (item.ok) {
+   if (item.ok) {
     let json = await item.json();
-    console.log(json);
+   console.log(json);
     var text = "";
-    var output = "<ol>";
+   var output = "<ol>";
 
     var list = document.getElementById('list');
     $("#list").empty();
-    for (let i =0; i < json.length; i++) {
-    console.log (json[i]);
-      var li = document.createElement("LI");
+   for (let i =0; i < json.length; i++) {
+   console.log (json[i]);
+     var li = document.createElement("LI");
       li.textContent = json[i].task;
       li.insertAdjacentHTML('beforeEnd', '&nbsp;<button>удалить</button> <button>изменить</button>');
       list.appendChild(li);
@@ -97,7 +104,7 @@
    console.log(lastIndex);
    var task = index.substring(0,lastIndex);
     if (tgt.innerHTML === "удалить") {
-    deleteLink(task);
+   deleteLink(task);
     tgt.closest('li').remove();
   }
     if (tgt.innerHTML === "изменить") {
@@ -105,9 +112,10 @@
     let newTask = prompt ("Чем заменить?   ", "введите новое дело");
     let oldNewTasks = task + "," + newTask;
     editTask(oldNewTasks);
-    }
+   }
     return false;
 }
+
 
 </script>
 <script>
@@ -124,8 +132,9 @@ async function addTask() {
     });
         let item = await fetch(request);
         console.log(item);
-         renewList();
+     //    renewList();
         }
+
 
 </script>
 <script>
@@ -137,8 +146,9 @@ async function addTask() {
     });
         let item = await fetch(request);
         console.log(item);
-        renewList();
+   //     renewList();
          }
+
 
 </script>
 <script>
@@ -152,6 +162,7 @@ async function addTask() {
         console.log(item);
          }
 
+
 </script>
 <script>
      async function deleteAll () {
@@ -162,8 +173,9 @@ async function addTask() {
      });
      let item = await fetch(request);
      console.log(item);
-     renewList();
+  //   renewList();
      }
+
 
 </script>
 

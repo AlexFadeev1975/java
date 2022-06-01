@@ -36,8 +36,9 @@ public class ListController {
     @PatchMapping("/todolist/{tasks}")
     public void replace(@PathVariable(name = "tasks") String tasks) {
         String[] arrTasks = tasks.split(",");
+        String oldTask = arrTasks[0].trim();
         for (ToDo toDo : list) {
-            if (toDo.getTask().equals(arrTasks[0])) {
+            if (toDo.getTask().equals(oldTask)) {
                 toDo.setTask(arrTasks[1]);
                 toDoListRepositopy.save(toDo);
             }
@@ -46,9 +47,9 @@ public class ListController {
 
     @DeleteMapping("/todolist/{task}")
     public void deleteId(@PathVariable(name = "task") String task) {
-
+        String trimTask = task.trim();
         for (ToDo toDo : list) {
-            if (toDo.getTask().equals(task)) {
+            if (toDo.getTask().equals(trimTask)) {
                 toDoListRepositopy.delete(toDo);
             }
         }
