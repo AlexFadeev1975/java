@@ -21,17 +21,18 @@ public class Loader {
     private static HashMap<Voter, Integer> voterCounts = new HashMap<>();
 
     public static void main(String[] args) throws Exception {
-        String fileName = "res/data-18M.xml";
-        Long usage = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+
+        String fileName = "res/data-1572M.xml";
+        Long start = System.currentTimeMillis();
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
         XMLHandler handler = new XMLHandler();
         parser.parse(new File(fileName), handler);
-        handler.printDuplicatedVoters();
-        handler.printStationWorkTime();
+        //  handler.printDuplicatedVoters();
+        //  handler.printStationWorkTime();
 
-        usage = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() - usage;
-        System.out.println(usage);
+
+        System.out.println(System.currentTimeMillis() - start);
 
 //        parseFile(fileName);
 //
