@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -63,6 +64,20 @@ public class DbService {
 
         return jdbcTemplate().query("select * from lemma", new RowLemma());
     }
+    public List <Lemma> getLemmas (List <String> lemmasList) {
+
+        StringBuilder stringQuery = new StringBuilder();
+        Iterator<String> iterator = lemmasList.listIterator();
+        while (iterator.hasNext()) {
+            stringQuery.append(iterator.next());
+            if (iterator.hasNext()) {
+                stringQuery.append(", ");
+            }
+        }
+
+        return jdbcTemplate().query("select " + stringQuery + " from lemma", new RowLemma());
+    }
+
     }
 
 

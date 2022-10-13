@@ -1,10 +1,5 @@
 package model;
-
 import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import javax.persistence.*;
 import java.io.Serializable;
 @Data
@@ -25,13 +20,4 @@ public class Index implements Serializable {
     @Column(name = "\"rank\"")
     private float rank;
 
-   public Index(int pageId, int lemmaId, long rank) {
-        this.pageId = pageId;
-        this.lemmaId = lemmaId;
-        this.rank = rank;
-    }
-
-    public Index() {
-
-    }
-}
+  }

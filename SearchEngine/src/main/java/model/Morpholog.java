@@ -15,22 +15,19 @@ public class Morpholog {
     public List<String> getLemmas (String text) throws IOException {
 
         List<String> usefulWords = new ArrayList<>();
-        String [] splitText = text.split(" ");
-
-        Arrays.stream(splitText).forEach(x -> {
-            if (x.matches("^[а-яА-ЯёЁ]+$")) {
-
-                String normalWord = x.toLowerCase();
-
-                    normalWord.trim();
-                    usefulWords.add(normalWord);
-        //        }
-            }
-        });
-
         LuceneMorphology luceneMorphology = new RussianLuceneMorphology();
         List <String> listLemmas = new ArrayList<>();
 
+        String [] splitText = text.split(" ");
+
+        Arrays.stream(splitText).forEach(x -> {
+
+            if (x.matches("^[а-яА-ЯёЁ]+$")) {
+                String normalWord = x.toLowerCase();
+                    normalWord.trim();
+                    usefulWords.add(normalWord);
+                   }
+        });
         usefulWords.forEach(x -> {
 
             List<String> listBasedForms = luceneMorphology.getNormalForms(x);
@@ -39,10 +36,8 @@ public class Morpholog {
             String[] info = wordInfo.get(0).split("\\|");
             String[] wordReview = info[1].split(" ");
             if (wordReview[1].matches("С") || (wordReview[1].matches("П")) || (wordReview[1].matches("Г"))) {
-
                 if (!listLemmas.contains(basedForm)) {
                 listLemmas.add(basedForm);}
-
             }
         });
      return listLemmas; }
