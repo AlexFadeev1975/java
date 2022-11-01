@@ -22,6 +22,6 @@ Drop and re-create the database schema on startup
 <mapping class="model.Page"/>
 <mapping class="model.Lemma"/>
 <mapping class="model.Index"/>
-
+    <mapping class="model.Site"/>
 </session-factory>
 </hibernate-configuration>

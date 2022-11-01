@@ -1,9 +1,6 @@
 package main;
 
-import model.GetLinks;
-import model.Indexer;
-import model.Morpholog;
-import model.XMLParser;
+import model.*;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
@@ -42,6 +39,9 @@ public class main {
 
 		Indexer indexer = new Indexer();
 		indexer.indexer();
+
+		SearchSystem searchSystem = new SearchSystem();
+
 
 	    session.close();
 

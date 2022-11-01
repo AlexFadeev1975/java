@@ -1,5 +1,6 @@
 package model;
 import org.apache.lucene.morphology.LuceneMorphology;
+import org.apache.lucene.morphology.russian.RussianAnalyzer;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
@@ -7,7 +8,9 @@ import java.util.*;
 
 @Service
 public class Morpholog {
-    
+
+    int maxCount = 500;
+
     public Morpholog() {
         
     }
@@ -18,14 +21,15 @@ public class Morpholog {
         LuceneMorphology luceneMorphology = new RussianLuceneMorphology();
         List <String> listLemmas = new ArrayList<>();
 
+
         String [] splitText = text.split(" ");
 
         Arrays.stream(splitText).forEach(x -> {
 
-            if (x.matches("^[а-яА-ЯёЁ]+$")) {
+            if (x.matches("[а-яА-ЯёЁ]+")) {
                 String normalWord = x.toLowerCase();
-                    normalWord.trim();
-                    usefulWords.add(normalWord);
+                  String normalWordTrim = normalWord.trim();
+                usefulWords.add(normalWordTrim);
                    }
         });
         usefulWords.forEach(x -> {
@@ -35,17 +39,27 @@ public class Morpholog {
             List<String> wordInfo = luceneMorphology.getMorphInfo(basedForm);
             String[] info = wordInfo.get(0).split("\\|");
             String[] wordReview = info[1].split(" ");
-            if (wordReview[1].matches("С") || (wordReview[1].matches("П")) || (wordReview[1].matches("Г"))) {
-                if (!listLemmas.contains(basedForm)) {
-                listLemmas.add(basedForm);}
+            if (wordReview[1].matches("С") || (wordReview[1].matches("П")) ||
+                    (wordReview[1].matches("Г")) ) {
+                   listLemmas.add(basedForm);
             }
         });
      return listLemmas; }
+
+    public List <String> getSingleLemmas (List <String> listLemmas) {
+        List <String> listSingleLemmas = new ArrayList<>();
+        listLemmas.forEach(l -> {
+            if (!listSingleLemmas.contains(l)) {
+                listSingleLemmas.add(l);
+            }
+        });
+    return listSingleLemmas; }
 
     public void getListPageContents () {
 
         DbService dbService = new DbService();
         HashMap <String, Integer> lemmaHolder = new HashMap<>();
+        HashMap <String, Integer> lemmaHolderCleared = new HashMap<>();
 
         List<Page> page = dbService.getAllPages();
 
@@ -53,21 +67,27 @@ public class Morpholog {
         
         page.forEach(x -> {
             try {
-                List <String> lemmas = getLemmas(x.getContent());
+                List <String> lemmas = getSingleLemmas(getLemmas(x.getContent()));
+
                 lemmas.forEach(a -> {
-                    int count = (lemmaHolder.containsKey(a)) ? lemmaHolder.get(a) + 1 : 0;
+                    int count = (lemmaHolder.containsKey(a)) ? lemmaHolder.get(a) + 1 : 1;
                     lemmaHolder.put(a, count);
                 });
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            lemmaHolder.entrySet().forEach(l -> {
-                stringQuery.append((stringQuery.length() < 1) ? "('" : ",('").append(l.getKey()).append("','").
-                        append(l.getValue()).append("')");
 
-            });
-        
         });
+
+        lemmaHolder.forEach((key, value) -> {
+            if (value < maxCount) {
+                lemmaHolderCleared.put(key, value);
+            }
+        });
+
+        lemmaHolderCleared.forEach((key, value) -> stringQuery.append((stringQuery.length() < 1) ? "('" : ",('").append(key).append("','").
+                append(value).append("')"));
+
         String sqlString = "INSERT INTO lemma (lemma, frequency) VALUES" +
                 stringQuery + ";";
         dbService.save(sqlString);

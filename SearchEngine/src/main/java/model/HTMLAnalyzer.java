@@ -40,7 +40,7 @@ public class HTMLAnalyzer {
         assert response != null;
         if (!response.toString().isEmpty()) {
             @NonNull
-            Document doc = response.parse();
+            Document doc = response.parse();//IllegalArgumentException string must njt be empty
 
             code = response.statusCode();
 
@@ -52,7 +52,7 @@ public class HTMLAnalyzer {
             }
 
             String title = doc.title();
-           content = title + " фф "+ doc.body().text() ;
+           content = title + " zzz "+ doc.body().text() ;
             if (content.contains("'")) {
            String cont = content.replaceAll("'", "");
               content = cont;
