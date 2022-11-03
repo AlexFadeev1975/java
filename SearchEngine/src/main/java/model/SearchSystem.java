@@ -8,7 +8,7 @@ public class SearchSystem {
 
 
     public SearchSystem() throws IOException {
-        String searchString = "мама мыла машу";
+        String searchString = "Мощные источники электромагнитного излучения терагерцового, оптического рентгеновского диапазонов";
         pageIdAndRelRankFinder(listLemmas(searchString));
     }
 

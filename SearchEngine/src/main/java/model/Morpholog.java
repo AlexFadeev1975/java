@@ -9,7 +9,7 @@ import java.util.*;
 @Service
 public class Morpholog {
 
-    int maxCount = 500;
+    int maxCount = 50;
 
     public Morpholog() {
         
