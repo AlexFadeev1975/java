@@ -1,43 +1,29 @@
 package searchengine.repository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-
 import searchengine.model.*;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @Component
-public class DbService  implements DaoService{
+public class DbService implements DaoService {
 
+    private JdbcTemplate jdbcTemplate;
+    private SiteRepository seRepository;
 
-//    public DataSource dataSource() {
-//        DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
-//        dataSourceBuilder.driverClassName("com.mysql.cj.jdbc.Driver");
-//       dataSourceBuilder.url("jdbc:mysql://localhost:3306/search_engine?max_allowed_packet=16777216");
-//        dataSourceBuilder.username("root");
-//        dataSourceBuilder.password("Alex1975");
-//
-//       return dataSourceBuilder.build();
-//   }
-//    @Bean
-//    @ConfigurationProperties (prefix = "application.datasource")
-// public DataSource dataSource() {
-//       return DataSourceBuilder.create().build();
-//   }
-
-     private JdbcTemplate jdbcTemplate;
-     private SiteRepository seRepository;
-
-     @Autowired
-     public DbService (DataSource dataSource) {
-         jdbcTemplate = new JdbcTemplate(dataSource);
-     }
+    @Autowired
+    public DbService(DataSource dataSource) {
+        jdbcTemplate = new JdbcTemplate(dataSource);
+    }
 
     public int save(String sqlString) {
 
@@ -94,6 +80,7 @@ public class DbService  implements DaoService{
         }
 
     }
+
     public static class RowSite implements RowMapper<Site> {
         public Site mapRow(ResultSet rs, int rowNum) throws SQLException {
             Site site = new Site();
@@ -108,12 +95,14 @@ public class DbService  implements DaoService{
         }
 
     }
+
     @Override
     public List<Page> getAllPages() {
 
         return jdbcTemplate.query("select * from page", new RowPage());
 
     }
+
     @Override
     public List<Lemma> getAllLemmas() {
 
@@ -140,6 +129,7 @@ public class DbService  implements DaoService{
 
         return jdbcTemplate.query("select * from lemma WHERE lemma IN (" + stringQuery + ")", new RowLemma());
     }
+
     @Override
     public List<Page> getPages(List<Integer> listPageId) {
 
@@ -176,14 +166,16 @@ public class DbService  implements DaoService{
 
 
     }
+
     @Override
     public int saveSiteReturnID(Site site) {
 
 
         jdbcTemplate.update("insert into site (name, url, status, status_time) values (?, ?, ?, ?) ", site.getName(),
-                site.getUrl(), site.getStatus().name() , site.getStatusTime());
+                site.getUrl(), site.getStatus().name(), site.getStatusTime());
 
-            return jdbcTemplate.queryForObject("select id from site where url = \"" + site.getUrl() + "\"", Integer.class);
+
+        return jdbcTemplate.queryForObject("select id from site where url = \"" + site.getUrl() + "\"", Integer.class);
 
     }
 
@@ -196,6 +188,7 @@ public class DbService  implements DaoService{
             return null;
         }
     }
+
     @Override
     public int findIdSite(String url) {
         try {
@@ -204,8 +197,9 @@ public class DbService  implements DaoService{
             return 0;
         }
     }
+
     @Override
-    public List<Site> findSiteFromUrl (String url) {
+    public List<Site> findSiteFromUrl(String url) {
         try {
             return jdbcTemplate.query("select * from site where url = \"" + url + "\"", new RowSite());
         } catch (EmptyResultDataAccessException e) {
@@ -215,7 +209,7 @@ public class DbService  implements DaoService{
 
     @Override
     public int saveStatusSite(StatusSite status, int id) {
-       return jdbcTemplate.update("update site set `status` = \"" + status.toString() + "\", status_time = now() where id = " + id );
+        return jdbcTemplate.update("update site set `status` = \"" + status.toString() + "\", status_time = now() where id = " + id);
     }
 
     @Override
@@ -223,7 +217,24 @@ public class DbService  implements DaoService{
 
         return jdbcTemplate.update("delete from site where id = ?", id) == 1;
 
-        }
+    }
+
+    @Override
+    public List<Lemma> findAllLemmasFromIdSite(int idSite) {
+
+        return jdbcTemplate.query("select * from lemma  where id_site = " + idSite + ";", new RowLemma());
+    }
+
+    @Override
+    public List<Site> findSiteFromName(String name) {
+        return jdbcTemplate.query("select * from site where name = \"" + name + "\"", new RowSite());
+    }
+
+    @Override
+    public List<Page> findAllPagesByIdSite(int idSite) {
+
+        return jdbcTemplate.query("select * from page where id_site = " + idSite + ";", new RowPage());
+    }
 }
 
 

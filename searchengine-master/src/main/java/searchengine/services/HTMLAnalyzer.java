@@ -1,12 +1,11 @@
 package searchengine.services;
+
 import lombok.NonNull;
-import net.bytebuddy.build.BuildLogger;
 import org.jsoup.Connection;
-import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class HTMLAnalyzer {

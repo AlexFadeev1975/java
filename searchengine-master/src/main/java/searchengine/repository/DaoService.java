@@ -2,36 +2,40 @@ package searchengine.repository;
 
 import searchengine.model.*;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 public interface DaoService {
 
 
+    int save(String sqlString);
 
-     int save(String sqlString);
+    List<Page> getAllPages();
 
-     List<Page> getAllPages();
+    List<Lemma> getAllLemmas();
 
-     List<Lemma> getAllLemmas();
+    List<Site> getAllSites();
 
-     List <Site> getAllSites();
+    List<Lemma> getLemmas(List<String> lemmasList);
 
-     List<Lemma> getLemmas(List<String> lemmasList);
+    List<Page> getPages(List<Integer> listPageId);
 
-     List<Page> getPages(List<Integer> listPageId);
+    List<Index> getPageLemmaIdFromListLemmas(List<Lemma> listLemma);
 
-     List<Index> getPageLemmaIdFromListLemmas(List<Lemma> listLemma);
+    int saveSiteReturnID(Site site);
 
-     int saveSiteReturnID(Site site);
+    List<Site> findSiteIndexing();
 
-     List<Site> findSiteIndexing();
+    int findIdSite(String url);
 
-    public int findIdSite(String url);
+    int saveStatusSite(StatusSite status, int id);
 
-    public int saveStatusSite(StatusSite status, int id);
+    List<Site> findSiteFromUrl(String url);
 
-    public List<Site> findSiteFromUrl (String url);
+    boolean deleteOneSite(int id);
 
-    public boolean deleteOneSite(int id);
+    List<Lemma> findAllLemmasFromIdSite(int idSite);
+
+    List<Site> findSiteFromName(String name);
+
+    List<Page> findAllPagesByIdSite(int idSite);
 }

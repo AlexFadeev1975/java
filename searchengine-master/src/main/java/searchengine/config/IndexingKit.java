@@ -1,7 +1,6 @@
 package searchengine.config;
 
 import lombok.Data;
-import lombok.SneakyThrows;
 import searchengine.services.GetLinks;
 import searchengine.services.Indexer;
 import searchengine.services.Morpholog;

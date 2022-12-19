@@ -10,13 +10,10 @@ import searchengine.dto.statistics.StatisticsData;
 import searchengine.dto.statistics.StatisticsResponse;
 import searchengine.dto.statistics.TotalStatistics;
 import searchengine.model.Page;
-import searchengine.repository.LemmaRepository;
-import searchengine.repository.PageRepository;
-import searchengine.repository.SiteRepository;
+import searchengine.repository.DaoService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -26,11 +23,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final SitesList sites;
     public Page page;
     @Autowired
-    public SiteRepository siteRepository;
-    @Autowired
-    public PageRepository pageRepository;
-    @Autowired
-    public LemmaRepository lemmaRepository;
+    public DaoService dbService;
 
     @Override
     public StatisticsResponse getStatistics() {
@@ -41,15 +34,16 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         List<DetailedStatisticsItem> detailed = new ArrayList<>();
         List<Site> sitesList = sites.getSites();
-        for(int i = 0; i < sitesList.size(); i++) {
+        for (int i = 0; i < sitesList.size(); i++) {
             Site site = sitesList.get(i);
             DetailedStatisticsItem item = new DetailedStatisticsItem();
             item.setName(site.getName());
             item.setUrl(site.getUrl());
-            searchengine.model.Site link = siteRepository.findSiteFromName(site.getName());
-            int pages = (link != null) ? pageRepository.findAllPagesByIdSite(link.getId()).size(): 0;
-     //
-            int lemmas = (link != null) ? lemmaRepository.findAllLemmasFromIdSite(link.getId()).size(): 0;
+            List<searchengine.model.Site> links = dbService.findSiteFromName(site.getName());
+            searchengine.model.Site link = links.get(0);
+            int pages = (link != null) ? dbService.findAllPagesByIdSite(link.getId()).size() : 0;
+            //
+            int lemmas = (link != null) ? dbService.findAllLemmasFromIdSite(link.getId()).size() : 0;
 
             item.setPages(pages);
             item.setLemmas(lemmas);

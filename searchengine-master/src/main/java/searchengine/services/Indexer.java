@@ -1,11 +1,8 @@
 package searchengine.services;
+
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import searchengine.model.Lemma;
 import searchengine.model.Page;
-import searchengine.repository.DbService;
-import searchengine.services.Morpholog;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,17 +17,19 @@ public class Indexer {
     public boolean interrrupt = false;
     Morpholog morpholog = new Morpholog();
     Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
     public Indexer() throws InterruptedException {
     }
 
-    public String indexer (List<Page> pages, List<Lemma> lemmas) throws IOException {
+    public String indexer(List<Page> pages, List<Lemma> lemmas) throws IOException {
 
         StringBuilder stringQuery = new StringBuilder();
         for (Page x : pages) {
             if (interrrupt) {
                 logger.info("инексацию тормознули");
                 interrrupt = false;
-                break; }
+                break;
+            }
             String content = x.getContent();
             if (x.getCode() == 200 && content.contains("zzz")) {
                 List<String> titleLemmas = new ArrayList<>();
@@ -81,9 +80,10 @@ public class Indexer {
             }
         }
 
-     return stringQuery.toString();
+        return stringQuery.toString();
     }
-    private int findIdLemma (List <Lemma> lemmas, String lemma) {
+
+    private int findIdLemma(List<Lemma> lemmas, String lemma) {
         AtomicInteger idLemma = new AtomicInteger();
         lemmas.forEach(lemma1 -> {
             String currentLemma = lemma1.getLemma();

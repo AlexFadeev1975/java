@@ -1,10 +1,13 @@
 package searchengine.model;
+
 import lombok.Data;
+
 import javax.persistence.*;
 import java.io.Serializable;
+
 @Data
 @Entity
-@Table (name = "\"index\"")
+@Table(name = "\"index\"")
 public class Index implements Serializable {
 
     @Id
@@ -20,13 +23,14 @@ public class Index implements Serializable {
     @Column(name = "\"rank\"")
     private float rank;
 
-    public Index () {}
+    public Index() {
+    }
 
-    public Index (int pageId, int lemmaId) {
+    public Index(int pageId, int lemmaId) {
         int id = 0;
         this.pageId = pageId;
         this.lemmaId = lemmaId;
         float rank = 0;
     }
 
-  }
+}

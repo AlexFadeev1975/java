@@ -7,12 +7,13 @@ import searchengine.config.IndexingKit;
 import searchengine.config.SitesList;
 import searchengine.model.*;
 import searchengine.repository.DaoService;
-import searchengine.repository.IndexRepository;
-import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
 
 @Service
@@ -24,9 +25,6 @@ public class IndexingServiceImpl implements IndexingService {
     public DaoService dbService;
     @Autowired
     public SiteRepository seRepository;
-
-
-    private boolean isRun = true;
     @Setter
     private boolean interrupt = false;
 
@@ -37,12 +35,10 @@ public class IndexingServiceImpl implements IndexingService {
     public IndexingServiceImpl(SitesList sitesList, IndexingKit indexingKit) throws InterruptedException {
         this.sitesList = sitesList;
         this.indexingKit = indexingKit;
-
-
     }
 
     @Override
-    public boolean runFullIndexing() throws InterruptedException {
+    public void runFullIndexing() throws InterruptedException {
 
         interrupt = false;
         for (int i = 0; i < sitesList.getSites().size(); i++) {
@@ -53,10 +49,8 @@ public class IndexingServiceImpl implements IndexingService {
             }
             searchengine.config.Site s = sitesList.getSites().get(i);
             oneIndexingSite(s);
-
         }
 
-        return false;
     }
 
     public void oneIndexingSite(searchengine.config.Site link) throws InterruptedException, NullPointerException {
@@ -133,7 +127,7 @@ public class IndexingServiceImpl implements IndexingService {
 
 
     @Override
-    public boolean stopFullIndexing() throws InterruptedException {
+    public void stopFullIndexing() {
 
 
         interrupt = true;
@@ -162,32 +156,33 @@ public class IndexingServiceImpl implements IndexingService {
 
         }
 
-        return true;
     }
 
     public List<ResultPage> searchEngine(String searchString) throws IOException, InterruptedException {
         indexingKit.setMorpholog(new Morpholog());
         Morpholog morpholog = indexingKit.getMorpholog();
         List<Lemma> lemmaList = dbService.getLemmas(morpholog.getLemmas(searchString));
-        lemmaList.sort(new Comparator<Lemma>() {
-            @Override
-            public int compare(Lemma o1, Lemma o2) {
-                if (o1.getFrequency() > o2.getFrequency()) return 1;
-                if (o1.getFrequency() < o2.getFrequency()) return -1;
-                return 0;
-            }
-        });
+        if (!lemmaList.isEmpty()) {
+            lemmaList.sort(new Comparator<Lemma>() {
+                @Override
+                public int compare(Lemma o1, Lemma o2) {
+                    if (o1.getFrequency() > o2.getFrequency()) return 1;
+                    if (o1.getFrequency() < o2.getFrequency()) return -1;
+                    return 0;
+                }
+            });
 
             List<Index> indexList = dbService.getPageLemmaIdFromListLemmas(lemmaList);
             indexingKit.setSearchSystem(new SearchSystem());
             HashMap<Integer, Float> mapPageIdToRank = indexingKit.getSearchSystem().pageIdAndRelRankFinder(indexList, lemmaList);
 
             List<Page> resultPages = dbService.getPages(mapPageIdToRank.keySet().stream().toList());
-            List <Site> listSites = dbService.getAllSites();
+            List<Site> listSites = dbService.getAllSites();
             return indexingKit.getSearchSystem().getResultPages(mapPageIdToRank, resultPages, lemmaList, listSites);
-        }
+        } else return null;
 
     }
+}
 
 
 

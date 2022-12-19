@@ -1,6 +1,6 @@
 package searchengine.model;
+
 import lombok.Data;
-import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -13,37 +13,37 @@ import java.util.Set;
 public class Site implements Serializable {
 
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column (name = "\"status\"")
+    @Column(name = "\"status\"")
 
     @Enumerated(EnumType.STRING)
     private StatusSite status;
 
-    @Column (name = "status_time", columnDefinition = "TIMESTAMP")
+    @Column(name = "status_time", columnDefinition = "TIMESTAMP")
     private Date statusTime;
 
-    @Column (name = "last_error", nullable = true)
+    @Column(name = "last_error", nullable = true)
     private String lastError;
 
-    @Column (name = "url")
+    @Column(name = "url")
     private String url;
 
-     @Column (name = "\"name\"")
+    @Column(name = "\"name\"")
     private String name;
 
-     @OneToMany (cascade = CascadeType.REMOVE, orphanRemoval = true)
-     @JoinColumn (name = "id_site")
-     private Set<Page> pages;
+    @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JoinColumn(name = "id_site")
+    private Set<Page> pages;
 
-     @OneToMany (cascade = CascadeType.REMOVE, orphanRemoval = true)
-     @JoinColumn (name = "id_site")
-     private Set<Lemma> lemmas;
+    @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JoinColumn(name = "id_site")
+    private Set<Lemma> lemmas;
 
-     public String toString () {
+    public String toString() {
 
-         return "(\"" + getStatus() + "\", " + "now()" + " ,\"" + getLastError() + "\",\"" + getUrl() + "\",\"" + getName() + "\")";
-     }
+        return "(\"" + getStatus() + "\", " + "now()" + " ,\"" + getLastError() + "\",\"" + getUrl() + "\",\"" + getName() + "\")";
+    }
 
 }

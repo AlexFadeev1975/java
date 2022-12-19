@@ -17,6 +17,6 @@ spring:
 indexing-settings:
   sites:
     - url: https://ipfran.ru
-      name: институт.ру
+      name: институт .ру
     - url: https://www.playback.ru
       name: PlayBack.Ru
