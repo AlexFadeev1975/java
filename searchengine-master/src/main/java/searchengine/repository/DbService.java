@@ -168,12 +168,12 @@ public class DbService implements DaoService {
     }
 
     @Override
-    public int saveSiteReturnID(Site site) {
+    public int saveSiteReturnID(Site site) throws InterruptedException {
 
 
         jdbcTemplate.update("insert into site (name, url, status, status_time) values (?, ?, ?, ?) ", site.getName(),
                 site.getUrl(), site.getStatus().name(), site.getStatusTime());
-
+        Thread.sleep(200);
 
         return jdbcTemplate.queryForObject("select id from site where url = \"" + site.getUrl() + "\"", Integer.class);
 

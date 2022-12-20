@@ -18,7 +18,7 @@ JDBC connection pool settings ... using built-in test pool
 <!--
 Drop and re-create the database schema on startup
 -->
-<property name="hbm2ddl.auto">update</property>
+<property name="hbm2ddl.auto">create</property>
 <mapping class="searchengine.model.Page"/>
 <mapping class="searchengine.model.Lemma"/>
 <mapping class="searchengine.model.Index"/>

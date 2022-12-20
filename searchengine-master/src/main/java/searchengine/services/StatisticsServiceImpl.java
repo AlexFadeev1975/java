@@ -40,17 +40,17 @@ public class StatisticsServiceImpl implements StatisticsService {
             item.setName(site.getName());
             item.setUrl(site.getUrl());
             List<searchengine.model.Site> links = dbService.findSiteFromName(site.getName());
-            searchengine.model.Site link = links.get(0);
+            searchengine.model.Site link = (!links.isEmpty()) ? links.get(0) : null;
             int pages = (link != null) ? dbService.findAllPagesByIdSite(link.getId()).size() : 0;
             //
             int lemmas = (link != null) ? dbService.findAllLemmasFromIdSite(link.getId()).size() : 0;
 
             item.setPages(pages);
             item.setLemmas(lemmas);
-            String status = (link != null) ? link.getStatus().toString() : "";
+            String status = (link != null) ? link.getStatus().toString() : "FAILED";
             item.setStatus(status);
 
-            String lastError = (link != null) ? link.getLastError() : "";
+            String lastError = (link != null) ? link.getLastError() : "Страница не индексирована";
             item.setError(lastError);
 
             long statusTime = (link != null) ? link.getStatusTime().getTime() : 0;

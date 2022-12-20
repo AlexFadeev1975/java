@@ -1,5 +1,4 @@
 package searchengine.services;
-
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,8 +7,8 @@ import searchengine.config.SitesList;
 import searchengine.model.*;
 import searchengine.repository.DaoService;
 import searchengine.repository.SiteRepository;
-
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,7 +18,7 @@ import java.util.logging.Logger;
 @Service
 public class IndexingServiceImpl implements IndexingService {
 
-    private SitesList sitesList;
+    private final SitesList  sitesList;
 
     @Autowired
     public DaoService dbService;
@@ -28,11 +27,11 @@ public class IndexingServiceImpl implements IndexingService {
     @Setter
     private boolean interrupt = false;
 
-    private IndexingKit indexingKit;
+    private final IndexingKit indexingKit;
 
     Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    public IndexingServiceImpl(SitesList sitesList, IndexingKit indexingKit) throws InterruptedException {
+    public IndexingServiceImpl(SitesList sitesList, IndexingKit indexingKit) {
         this.sitesList = sitesList;
         this.indexingKit = indexingKit;
     }
@@ -64,8 +63,8 @@ public class IndexingServiceImpl implements IndexingService {
             List<Site> siteList = dbService.findSiteFromUrl(link.getUrl());
 
             if (!siteList.isEmpty()) {
-                int idsite = siteList.get(0).getId();
-                seRepository.deleteById(idsite);
+                int idSite = siteList.get(0).getId();
+                seRepository.deleteById(idSite);
             }
             Site site = new Site();
             site.setName(link.getName());
@@ -88,7 +87,7 @@ public class IndexingServiceImpl implements IndexingService {
 
             String stringQueryLemma = null;
             try {
-                stringQueryLemma = morpholog.getListPageContents(pages, idSite);
+                stringQueryLemma = morpholog.getListPageContents(pages, idSite, pages.size());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -110,11 +109,10 @@ public class IndexingServiceImpl implements IndexingService {
 
                 if (!listPages.isEmpty() && !listLemmas.isEmpty()) {
                     site.setStatus(StatusSite.INDEXED);
-                    site.setStatusTime(new Date());
                 } else {
                     site.setStatus(StatusSite.FAILED);
-                    site.setStatusTime(new Date());
                 }
+                site.setStatusTime(new Date());
                 if (!interrupt) {
                     dbService.saveStatusSite(site.getStatus(), idSite);
                 }
@@ -148,12 +146,12 @@ public class IndexingServiceImpl implements IndexingService {
 
 
         if (!siteList.isEmpty()) {
-
-            siteList.forEach(site -> {
-                seRepository.deleteById(site.getId());
-            });
-
-
+            Site site = siteList.get(0);
+             seRepository.deleteById(site.getId());
+             site.setStatus(StatusSite.FAILED);
+             site.setStatusTime(new Date());
+             site.setLastError("Индексация страницы была прервана");
+             seRepository.save(site);
         }
 
     }
@@ -162,15 +160,9 @@ public class IndexingServiceImpl implements IndexingService {
         indexingKit.setMorpholog(new Morpholog());
         Morpholog morpholog = indexingKit.getMorpholog();
         List<Lemma> lemmaList = dbService.getLemmas(morpholog.getLemmas(searchString));
-        if (!lemmaList.isEmpty()) {
-            lemmaList.sort(new Comparator<Lemma>() {
-                @Override
-                public int compare(Lemma o1, Lemma o2) {
-                    if (o1.getFrequency() > o2.getFrequency()) return 1;
-                    if (o1.getFrequency() < o2.getFrequency()) return -1;
-                    return 0;
-                }
-            });
+        List<Site> siteList = dbService.findSiteIndexing();
+        if (!lemmaList.isEmpty() & siteList.isEmpty()) {
+            lemmaList.sort(Comparator.comparingInt(Lemma::getFrequency));
 
             List<Index> indexList = dbService.getPageLemmaIdFromListLemmas(lemmaList);
             indexingKit.setSearchSystem(new SearchSystem());

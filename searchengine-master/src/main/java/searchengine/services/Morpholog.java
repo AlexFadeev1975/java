@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 public class Morpholog {
 
-    int maxCount = 100;
+
     @Setter
     public boolean interrupt = false;
     Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -74,7 +74,7 @@ public class Morpholog {
         return listSingleLemmas;
     }
 
-    public String getListPageContents(List<Page> pages, int idSite) throws InterruptedException {
+    public String getListPageContents(List<Page> pages, int idSite, int maxFrequencyWord) throws InterruptedException {
 
         HashMap<String, Integer> lemmaHolder = new HashMap<>();
         HashMap<String, Integer> lemmaHolderCleared = new HashMap<>();
@@ -103,7 +103,7 @@ public class Morpholog {
         }
 
         lemmaHolder.forEach((key, value) -> {
-            if (value < maxCount) {
+            if (value < maxFrequencyWord) {
                 lemmaHolderCleared.put(key, value);
 
             }

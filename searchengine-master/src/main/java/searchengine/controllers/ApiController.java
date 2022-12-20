@@ -142,8 +142,8 @@ public class ApiController extends Thread {
         if (!query.isEmpty()) {
             List<ResultPage> resultPageList = indexingService.searchEngine(query);
             searchResponse = (!(resultPageList == null)) ? new SearchResponse(true, resultPageList.size(),
-                    resultPageList) : new SearchResponse(false, "Совпадений не найдено");
-        } else searchResponse = new SearchResponse(false, "Задан пустой поисковый запрос");
+                    resultPageList) : new SearchResponse(false, "Страницы не найдено");
+        } else searchResponse = new SearchResponse(false, "Задан пустой поисковый запрос либо запущена индексация страниц");
 
         if (searchResponse.isResult()) {
             return ResponseEntity.ok(searchResponse);

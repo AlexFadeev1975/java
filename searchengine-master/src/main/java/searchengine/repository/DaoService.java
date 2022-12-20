@@ -21,7 +21,7 @@ public interface DaoService {
 
     List<Index> getPageLemmaIdFromListLemmas(List<Lemma> listLemma);
 
-    int saveSiteReturnID(Site site);
+    int saveSiteReturnID(Site site) throws InterruptedException;
 
     List<Site> findSiteIndexing();
 
