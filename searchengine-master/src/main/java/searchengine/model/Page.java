@@ -18,7 +18,7 @@ public class Page implements Serializable {
     @Column(name = "id_site")
     private int idSite;
 
-    @Column(name = "path")
+    @Column(name = "path", length = 300)
     private String path;
 
     @Column(name = "code")

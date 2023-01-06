@@ -11,8 +11,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
-        ddl-auto: create-drop
-        show-sql: true
+    hibernate:
+      ddl-auto: create
+    show-sql: true
 
 indexing-settings:
   sites:

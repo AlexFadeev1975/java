@@ -1,18 +1,15 @@
 package searchengine.services;
 
-import searchengine.model.ResultPage;
-
 import java.io.IOException;
-import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public interface IndexingService {
 
 
-    void runFullIndexing() throws InterruptedException;
+    boolean runFullIndexing() throws InterruptedException, IOException, ExecutionException;
 
     void stopFullIndexing() throws InterruptedException;
 
-    void oneIndexingSite(searchengine.config.Site link) throws InterruptedException;
+    boolean oneIndexingSite(searchengine.config.Site link) throws InterruptedException, IOException;
 
-    List<ResultPage> searchEngine(String searchString) throws IOException, InterruptedException;
 }

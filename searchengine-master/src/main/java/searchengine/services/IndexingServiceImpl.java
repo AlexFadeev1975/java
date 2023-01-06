@@ -1,178 +1,108 @@
 package searchengine.services;
-import lombok.Setter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import searchengine.config.IndexingKit;
+import searchengine.IndexingKit.*;
 import searchengine.config.SitesList;
-import searchengine.model.*;
-import searchengine.repository.DaoService;
+import searchengine.model.Site;
+import searchengine.model.StatusSite;
+import searchengine.repository.IndexRepository;
+import searchengine.repository.LemmaRepository;
+import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Comparator;
+
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 @Service
 public class IndexingServiceImpl implements IndexingService {
 
-    private final SitesList  sitesList;
-
+    private final SitesList sitesList;
     @Autowired
-    public DaoService dbService;
+    public SiteRepository siteRepository;
     @Autowired
-    public SiteRepository seRepository;
-    @Setter
-    private boolean interrupt = false;
+    public PageRepository pageRepository;
+    @Autowired
+    public LemmaRepository lemmaRepository;
+    @Autowired
+    public IndexRepository indexRepository;
+    private final static int processorsCount = Runtime.getRuntime().availableProcessors();
 
-    private final IndexingKit indexingKit;
+    private ExecutorService executorService;
+    private Morpholog morpholog;
+    private Indexer indexer;
+    private GetLinks getLinks;
+    private SearchSystem searchSystem;
+    private searchengine.config.Site link;
 
     Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    public IndexingServiceImpl(SitesList sitesList, IndexingKit indexingKit) {
+    public IndexingServiceImpl(SitesList sitesList) {
         this.sitesList = sitesList;
-        this.indexingKit = indexingKit;
     }
 
     @Override
-    public void runFullIndexing() throws InterruptedException {
+    public boolean runFullIndexing() throws InterruptedException, ExecutionException {
 
-        interrupt = false;
-        for (int i = 0; i < sitesList.getSites().size(); i++) {
-            if (interrupt) {
-                logger.info("полную индексацию прервали");
-                interrupt = false;
-                break;
+        if (siteRepository.findByStatus(StatusSite.INDEXING).isEmpty()) {
+            executorService = Executors.newFixedThreadPool(processorsCount);
+
+            for (int i = 0; i < sitesList.getSites().size(); i++) {
+                searchengine.config.Site s = sitesList.getSites().get(i);
+                Future future = executorService.submit(new IndexingSite(siteRepository, pageRepository,
+                        lemmaRepository, indexRepository, morpholog, indexer, getLinks, s));
+                future.get();
             }
-            searchengine.config.Site s = sitesList.getSites().get(i);
-            oneIndexingSite(s);
+            executorService.shutdown();
+            if (executorService.isShutdown()) {
+                logger.info("Индексация завершена");
+            }
+            return true;
+        } else {
+            return false;
         }
-
     }
 
-    public void oneIndexingSite(searchengine.config.Site link) throws InterruptedException, NullPointerException {
+    @Override
+    public boolean oneIndexingSite(searchengine.config.Site link) throws NullPointerException {
 
-        if (link != null) {
-            indexingKit.setMorpholog(new Morpholog());
-            Morpholog morpholog = indexingKit.getMorpholog();
-            indexingKit.setIndexer(new Indexer());
-            Indexer indexer = indexingKit.getIndexer();
-
-            List<Site> siteList = dbService.findSiteFromUrl(link.getUrl());
-
-            if (!siteList.isEmpty()) {
-                int idSite = siteList.get(0).getId();
-                seRepository.deleteById(idSite);
+        if (siteRepository.findByStatus(StatusSite.INDEXING).isEmpty()) {
+            executorService = Executors.newFixedThreadPool(processorsCount);
+            executorService.submit(new IndexingSite(siteRepository, pageRepository,
+                    lemmaRepository, indexRepository, morpholog, indexer, getLinks, link));
+            if (executorService.isShutdown()) {
+                logger.info("Индексация завершена");
             }
-            Site site = new Site();
-            site.setName(link.getName());
-            site.setUrl(link.getUrl());
-            site.setStatus(StatusSite.INDEXING);
-            site.setStatusTime(new Date());
-            site.setLastError(null);
-
-            int idSite = dbService.saveSiteReturnID(site);
-            indexingKit.setGetLinks(new GetLinks(site.getUrl()));
-            GetLinks getLinks = indexingKit.getGetLinks();
-
-            List<Page> pages = getLinks.linkStorage(GetLinks.ReadAllLinks.resultLinks);
-            String resultLinks = new GetLinks().makeSqlString(pages, idSite);
-            String sqlStringPage = "INSERT INTO page (path, code, content, id_site) VALUES " +
-                    resultLinks + ";";
-            if (!interrupt) {
-                dbService.save(sqlStringPage);
-            }
-
-            String stringQueryLemma = null;
-            try {
-                stringQueryLemma = morpholog.getListPageContents(pages, idSite, pages.size());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            String sqlStringLemma = "INSERT INTO lemma (lemma, frequency, id_site) VALUES" +
-                    stringQueryLemma + ";";
-            if (!interrupt) {
-                dbService.save(sqlStringLemma);
-            }
-
-            List<Page> listPages = dbService.getAllPages();
-            List<Lemma> listLemmas = dbService.getAllLemmas();
-            try {
-                String sqlStringIndex = indexer.indexer(listPages, listLemmas);
-                String sqlString = "INSERT INTO `index` (lemma_id, page_id, `rank`) VALUES" +
-                        sqlStringIndex + ";";
-                if (!interrupt) {
-                    dbService.save(sqlString);
-                }
-
-                if (!listPages.isEmpty() && !listLemmas.isEmpty()) {
-                    site.setStatus(StatusSite.INDEXED);
-                } else {
-                    site.setStatus(StatusSite.FAILED);
-                }
-                site.setStatusTime(new Date());
-                if (!interrupt) {
-                    dbService.saveStatusSite(site.getStatus(), idSite);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
+            executorService.shutdown();
+            return true;
+        } else return false;
     }
-
 
     @Override
     public void stopFullIndexing() {
 
-
-        interrupt = true;
-
+        List<Runnable> list = executorService.shutdownNow();
+        list.clear();
         logger.info("стоп включился");
-        if (indexingKit.getGetLinks() != null) {
-            indexingKit.getGetLinks().setInterrupt(true);
+        if (executorService.isShutdown()) {
+            List<Site> siteList = siteRepository.findByStatus(StatusSite.INDEXING);
+
+            if (!siteList.isEmpty()) {
+                for (int i = 0; i < siteList.size(); i++) {
+                    Site site = siteList.get(i);
+                    siteRepository.deleteById(site.getId());
+                    site.setStatus(StatusSite.FAILED);
+                    site.setStatusTime(new Date());
+                    site.setLastError("Индексация страницы была прервана");
+                    siteRepository.save(site);
+                }
+            }
         }
-        if (indexingKit.getMorpholog() != null) {
-            indexingKit.getMorpholog().setInterrupt(true);
-        }
-        if (indexingKit.getIndexer() != null) {
-            indexingKit.getIndexer().setInterrrupt(true);
-        }
-
-        logger.info("прерыватели включены");
-        List<Site> siteList = dbService.findSiteIndexing();
-
-
-        if (!siteList.isEmpty()) {
-            Site site = siteList.get(0);
-             seRepository.deleteById(site.getId());
-             site.setStatus(StatusSite.FAILED);
-             site.setStatusTime(new Date());
-             site.setLastError("Индексация страницы была прервана");
-             seRepository.save(site);
-        }
-
-    }
-
-    public List<ResultPage> searchEngine(String searchString) throws IOException, InterruptedException {
-        indexingKit.setMorpholog(new Morpholog());
-        Morpholog morpholog = indexingKit.getMorpholog();
-        List<Lemma> lemmaList = dbService.getLemmas(morpholog.getLemmas(searchString));
-        List<Site> siteList = dbService.findSiteIndexing();
-        if (!lemmaList.isEmpty() & siteList.isEmpty()) {
-            lemmaList.sort(Comparator.comparingInt(Lemma::getFrequency));
-
-            List<Index> indexList = dbService.getPageLemmaIdFromListLemmas(lemmaList);
-            indexingKit.setSearchSystem(new SearchSystem());
-            HashMap<Integer, Float> mapPageIdToRank = indexingKit.getSearchSystem().pageIdAndRelRankFinder(indexList, lemmaList);
-
-            List<Page> resultPages = dbService.getPages(mapPageIdToRank.keySet().stream().toList());
-            List<Site> listSites = dbService.getAllSites();
-            return indexingKit.getSearchSystem().getResultPages(mapPageIdToRank, resultPages, lemmaList, listSites);
-        } else return null;
-
     }
 }
 

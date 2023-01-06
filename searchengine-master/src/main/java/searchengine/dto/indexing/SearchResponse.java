@@ -4,6 +4,7 @@ import lombok.Data;
 import searchengine.model.ResultPage;
 
 import java.util.List;
+
 @Data
 public class SearchResponse {
 
@@ -15,13 +16,13 @@ public class SearchResponse {
 
     List<ResultPage> data;
 
-    public SearchResponse(boolean result, int count, List <ResultPage> data) {
+    public SearchResponse(boolean result, int count, List<ResultPage> data) {
         this.result = result;
         this.count = count;
         this.data = data;
     }
 
-    public SearchResponse (boolean result, String error) {
+    public SearchResponse(boolean result, String error) {
         this.result = result;
         this.error = error;
     }

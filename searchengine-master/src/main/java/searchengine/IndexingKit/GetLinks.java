@@ -1,4 +1,4 @@
-package searchengine.services;
+package searchengine.IndexingKit;
 
 import lombok.Data;
 import lombok.NonNull;
@@ -8,7 +8,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import searchengine.model.Page;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
@@ -19,14 +18,10 @@ import java.util.logging.Logger;
 public class GetLinks {
 
     ForkJoinPool forkJoinPool = new ForkJoinPool();
-    @Setter
-    public boolean interrupt = false;
     public Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     @Setter
     public String url;
 
-    public GetLinks() {
-    }
 
     public GetLinks(String url) {
         this.url = url;
@@ -39,7 +34,7 @@ public class GetLinks {
         printer(res);
     }
 
-    static class ReadAllLinks extends RecursiveTask {
+    public static class ReadAllLinks extends RecursiveTask {
 
         public static Set<String> setLinks;
         public static SortedSet<String> resultLinks;
@@ -92,7 +87,6 @@ public class GetLinks {
                                 task.fork();
                                 taskList.add(task);
                             }
-
                         });
                         for (ReadAllLinks task : taskList) {
                             task.join();
@@ -101,14 +95,10 @@ public class GetLinks {
                 } else {
                     System.out.println("код не 200");
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             return resultLinks;
-
-
         }
     }
 
@@ -116,44 +106,30 @@ public class GetLinks {
         res.stream().forEach(System.out::println);
     }
 
-    public List<Page> linkStorage(Set<String> res) {
+    public List<Page> linkStorage(Set<String> res, int idSite) {
 
 
         List<Page> pages = new ArrayList<>();
         Iterator<String> iterator = res.iterator();
         while (iterator.hasNext()) {
             String x = iterator.next();
-            if (interrupt) {
-                logger.info("линк тормознули");
-                interrupt = false;
-                break;
-            }
+
             try {
                 HTMLAnalyzer analyzer = new HTMLAnalyzer(x, ReadAllLinks.site);
-                Page page = new Page();
-                page.setPath(analyzer.getPath());
-                page.setCode(analyzer.getCode());
-                page.setContent(analyzer.getContent());
-                pages.add(page);
-
-
+                if ((analyzer.getPath() != null) & (analyzer.getContent() != null)) {
+                    Page page = new Page();
+                    page.setPath(analyzer.getPath());
+                    page.setCode(analyzer.getCode());
+                    page.setContent(analyzer.getContent());
+                    page.setIdSite(idSite);
+                    pages.add(page);
+                }
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        ;
 
         return pages;
-    }
-
-    public String makeSqlString(List<Page> pages, int idSite) {
-
-        StringBuilder stringQuery = new StringBuilder();
-        pages.forEach(x -> {
-            stringQuery.append((stringQuery.length() < 1) ? "('" : ",('").append(x.getPath()).append("','").
-                    append(x.getCode()).append("','").append(x.getContent()).append("','").append(idSite).append("')");
-        });
-        return stringQuery.toString();
     }
 
     private String clearLine(String line) {
@@ -166,7 +142,6 @@ public class GetLinks {
             } else return splitLines[1];
         } else return line;
     }
-
 }
 
 

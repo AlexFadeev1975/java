@@ -1,4 +1,4 @@
-package searchengine.services;
+package searchengine.IndexingKit;
 
 import org.tartarus.snowball.ext.RussianStemmer;
 import searchengine.model.*;
@@ -6,7 +6,6 @@ import searchengine.model.*;
 import java.util.*;
 
 public class SearchSystem {
-
 
     public SearchSystem() {
     }
@@ -18,9 +17,7 @@ public class SearchSystem {
             HashMap<Integer, Float> mapPageIdToRank = new HashMap<>();
             List<Integer> listPageId = new ArrayList<>();
             Set<String> tempSet = new HashSet<>();
-            lemmaList.forEach(l -> {
-                tempSet.add(l.getLemma());
-            });
+            lemmaList.forEach(l -> tempSet.add(l.getLemma()));
 
             mapPageIdLemmaId.forEach(x -> {
                 listPageId.add(x.getPageId());
@@ -30,7 +27,6 @@ public class SearchSystem {
                     float absRank = (mapPageIdToRank.containsKey(pageId)) ? mapPageIdToRank.get(pageId) + rank : rank;
                     mapPageIdToRank.put(pageId, absRank);
                 }
-
             });
             mapPageIdToRank.forEach((pageId, rank) -> {
                 mapPageIdToRank.put(pageId, (rank / Collections.max(mapPageIdToRank.values())));
@@ -40,12 +36,16 @@ public class SearchSystem {
         return null;
     }
 
-    public List<ResultPage> getResultPages(HashMap<Integer, Float> mapPageIdToRank, List<Page> resultPages, List<Lemma> lemmaList, List<Site> listSites) {
+    public List<ResultPage> getResultPages(HashMap<Integer, Float> mapPageIdToRank, List<Page> resultPages, List<Lemma> lemmaList, List<Site> listSites, int offset, int limit) {
         List<ResultPage> resultPageList = new ArrayList<>();
         if (!mapPageIdToRank.isEmpty()) {
-            resultPages.forEach(page -> {
+            for (int i = 0; i < resultPages.size(); i++) {
+                Page page = resultPages.get(i);
                 ResultPage resultPage = new ResultPage();
                 Site site = getSite(page.getIdSite(), listSites);
+                if (site == null) {
+                    continue;
+                }
                 resultPage.setSite(site.getUrl());
                 resultPage.setSiteName(site.getName());
                 resultPage.setUrl(page.getPath());
@@ -54,11 +54,18 @@ public class SearchSystem {
                 resultPage.setSnippet(getSnippet(arrContent[1], lemmaList));//
                 resultPage.setRelevance(mapPageIdToRank.get(page.getId()));
                 resultPageList.add(resultPage);
-            });
+            }
             resultPageList.sort(Comparator.comparing(ResultPage::getRelevance).reversed());
+            if (offset < resultPageList.size()) {
+                List<ResultPage> totalPageList = resultPageList.subList(offset, resultPageList.size() - 1);
+                if (totalPageList.size() > limit) {
+                    resultPageList = totalPageList.subList(0, limit);
+                } else {
+                    resultPageList = totalPageList;
+                }
+            }
             return resultPageList;
         } else return null;
-
     }
 
     private String getStem(String word) {
@@ -75,17 +82,12 @@ public class SearchSystem {
         // String clearedContent = content.replaceAll("\\w", " ");
         String[] arrContent = clearedContent.split(" ");
         List<String> stemList = new ArrayList<>();
-
         String snippet = "";
         int startWord = arrContent.length;
         int endWord = 0;
         Set<String> lemmaSet = new HashSet<>();
-        lemmas.forEach(l -> {
-            lemmaSet.add(l.getLemma());
-        });
-        lemmaSet.forEach(l -> {
-            stemList.add(getStem(l));
-        });
+        lemmas.forEach(l -> lemmaSet.add(l.getLemma()));
+        lemmaSet.forEach(l -> stemList.add(getStem(l)));
         List<String> compareList = new ArrayList<>();
         for (int i = 0; i < arrContent.length; i++) {
             String currentWord = arrContent[i];

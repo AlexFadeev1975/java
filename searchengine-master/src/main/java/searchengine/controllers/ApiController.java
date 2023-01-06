@@ -4,7 +4,6 @@ import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import searchengine.config.OneFullSwitch;
 import searchengine.config.Site;
 import searchengine.config.SitesList;
 import searchengine.dto.indexing.IndexingResponse;
@@ -12,6 +11,7 @@ import searchengine.dto.indexing.SearchResponse;
 import searchengine.dto.statistics.StatisticsResponse;
 import searchengine.model.ResultPage;
 import searchengine.services.IndexingService;
+import searchengine.services.SearchService;
 import searchengine.services.StatisticsService;
 
 import java.io.IOException;
@@ -25,22 +25,19 @@ public class ApiController extends Thread {
 
     private final StatisticsService statisticsService;
     private static boolean isRun = true;
-    boolean interrupt = false;
-    OneFullSwitch oneFullSwitch;
+    private final SearchService searchService;
+    private final IndexingService indexingService;
     Site site;
     SitesList sitesList;
     Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    public ApiController(StatisticsService statisticsService, IndexingService indexingService, SitesList sitesList, OneFullSwitch oneFullSwitch, Site site) {
+    public ApiController(StatisticsService statisticsService, IndexingService indexingService, SitesList sitesList, SearchService searchService, Site site) {
         this.statisticsService = statisticsService;
         this.sitesList = sitesList;
         this.indexingService = indexingService;
-        this.oneFullSwitch = oneFullSwitch;
         this.site = site;
+        this.searchService = searchService;
     }
-
-    private final IndexingService indexingService;
-
 
     @GetMapping("/statistics")
 
@@ -49,9 +46,9 @@ public class ApiController extends Thread {
     }
 
     @GetMapping("/startIndexing")
-    public ResponseEntity<IndexingResponse> startIndexing() throws InterruptedException {
-        oneFullSwitch.setSwitcher(1);
-        ApiController api = new ApiController(statisticsService, indexingService, sitesList, oneFullSwitch, site);
+    public ResponseEntity<IndexingResponse> startIndexing() {
+
+        ApiController api = new ApiController(statisticsService, indexingService, sitesList, searchService, site);
 
         IndexingResponse indexingResponse = null;
 
@@ -64,16 +61,10 @@ public class ApiController extends Thread {
             indexingResponse = new IndexingResponse(false, "Индексация уже запущена");
             return new ResponseEntity<>(indexingResponse, HttpStatus.METHOD_NOT_ALLOWED);
         }
-
-//        if (indexingResponse.isResult()) {
-//            return ResponseEntity.ok(indexingResponse);
-//        } else return new ResponseEntity<>(indexingResponse, HttpStatus.FORBIDDEN);
-
-
     }
 
     @PostMapping("/indexPage")
-    public ResponseEntity<IndexingResponse> startOneSiteIndexing(@RequestBody String url) throws InterruptedException {
+    public ResponseEntity<IndexingResponse> startOneSiteIndexing(@RequestBody String url) throws InterruptedException, IOException {
         IndexingResponse indexingResponse = null;
         if (!url.isEmpty()) {
             String result = java.net.URLDecoder.decode(url, StandardCharsets.UTF_8);
@@ -87,14 +78,10 @@ public class ApiController extends Thread {
             }
 
             if (site == null) {
-                indexingResponse = new IndexingResponse(false, "Данная страница находится за пределами сайтов, \n" +
+                indexingResponse = new IndexingResponse(false, "Данная страница находится за пределами сайтов, " +
                         "указанных в конфигурационном файле");
             } else {
-
-                oneFullSwitch.setSwitcher(2);
-                ApiController api = new ApiController(statisticsService, indexingService, sitesList, oneFullSwitch, site);
-                if (isRun) {
-                    api.start();
+                if (indexingService.oneIndexingSite(site)) {
                     isRun = false;
                     indexingResponse = new IndexingResponse(true);
                     return ResponseEntity.ok(indexingResponse);
@@ -117,14 +104,13 @@ public class ApiController extends Thread {
         if (!isRun) {
 
             logger.info("прерывание включено");
-            interrupt = true;
-            isRun = true;
             ApiController.this.interrupt();
+
             indexingService.stopFullIndexing();
 
+            isRun = true;
 
             indexingResponse = new IndexingResponse(true);
-
 
         } else {
             indexingResponse = new IndexingResponse(false, "Индексация не запущена");
@@ -135,15 +121,20 @@ public class ApiController extends Thread {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<SearchResponse> search(@RequestParam String query) throws IOException, InterruptedException {
+    public ResponseEntity<SearchResponse> search(String query,
+                                                 String site,
+                                                 int offset,
+                                                 int limit) throws IOException, InterruptedException {
 
         SearchResponse searchResponse;
 
         if (!query.isEmpty()) {
-            List<ResultPage> resultPageList = indexingService.searchEngine(query);
-            searchResponse = (!(resultPageList == null)) ? new SearchResponse(true, resultPageList.size(),
-                    resultPageList) : new SearchResponse(false, "Страницы не найдено");
-        } else searchResponse = new SearchResponse(false, "Задан пустой поисковый запрос либо запущена индексация страниц");
+            List<ResultPage> resultPageList = searchService.searchEngine(query, site, offset, limit);
+            if (!(resultPageList == null)) {
+                searchResponse = (!resultPageList.isEmpty()) ? new SearchResponse(true, resultPageList.size(),
+                        resultPageList) : new SearchResponse(false, "Страниц не найдено");
+            } else searchResponse = new SearchResponse(false, "Указанный сайт не входит в индекс");
+        } else searchResponse = new SearchResponse(false, "Задан пустой поисковый запрос");
 
         if (searchResponse.isResult()) {
             return ResponseEntity.ok(searchResponse);
@@ -154,15 +145,10 @@ public class ApiController extends Thread {
     @Override
     public void run() {
 
-        if (oneFullSwitch.getSwitcher() == 1) {
-            indexingService.runFullIndexing();
+        if (indexingService.runFullIndexing()) {
             isRun = true;
         }
-        if (oneFullSwitch.getSwitcher() == 2) {
-            indexingService.oneIndexingSite(site);
-            isRun = true;
 
-        }
     }
 
 }

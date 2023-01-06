@@ -1,5 +1,4 @@
 package searchengine.services;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,7 +9,9 @@ import searchengine.dto.statistics.StatisticsData;
 import searchengine.dto.statistics.StatisticsResponse;
 import searchengine.dto.statistics.TotalStatistics;
 import searchengine.model.Page;
-import searchengine.repository.DaoService;
+import searchengine.repository.LemmaRepository;
+import searchengine.repository.PageRepository;
+import searchengine.repository.SiteRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +23,13 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private final SitesList sites;
     public Page page;
+
     @Autowired
-    public DaoService dbService;
+    public SiteRepository siteRepository;
+    @Autowired
+    public PageRepository pageRepository;
+    @Autowired
+    public LemmaRepository lemmaRepository;
 
     @Override
     public StatisticsResponse getStatistics() {
@@ -39,11 +45,10 @@ public class StatisticsServiceImpl implements StatisticsService {
             DetailedStatisticsItem item = new DetailedStatisticsItem();
             item.setName(site.getName());
             item.setUrl(site.getUrl());
-            List<searchengine.model.Site> links = dbService.findSiteFromName(site.getName());
+            List<searchengine.model.Site> links = siteRepository.findByUrl(site.getUrl());
             searchengine.model.Site link = (!links.isEmpty()) ? links.get(0) : null;
-            int pages = (link != null) ? dbService.findAllPagesByIdSite(link.getId()).size() : 0;
-            //
-            int lemmas = (link != null) ? dbService.findAllLemmasFromIdSite(link.getId()).size() : 0;
+            int pages = (link != null) ? pageRepository.findAllByIdSite(link.getId()).size() : 0;
+            int lemmas = (link != null) ? lemmaRepository.findAllByIdSite(link.getId()).size() : 0;
 
             item.setPages(pages);
             item.setLemmas(lemmas);

@@ -33,11 +33,11 @@ public class Site implements Serializable {
     @Column(name = "\"name\"")
     private String name;
 
-    @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.PERSIST, orphanRemoval = true)
     @JoinColumn(name = "id_site")
     private Set<Page> pages;
 
-    @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.PERSIST, orphanRemoval = true)
     @JoinColumn(name = "id_site")
     private Set<Lemma> lemmas;
 

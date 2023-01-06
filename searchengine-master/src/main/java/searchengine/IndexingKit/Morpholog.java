@@ -1,26 +1,18 @@
-package searchengine.services;
+package searchengine.IndexingKit;
 
-import lombok.Setter;
 import org.apache.lucene.morphology.LuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
+import searchengine.model.Lemma;
 import searchengine.model.Page;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class Morpholog {
 
-
-    @Setter
-    public boolean interrupt = false;
-    Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-
     public Morpholog() {
-
-
     }
 
     public List<String> getLemmas(String text) throws IOException {
@@ -31,13 +23,8 @@ public class Morpholog {
         String clearedText = text.replaceAll("[\"*»*«*\\.*\\,*(*)*\'*]", " ");
         String[] splitText = clearedText.split(" ");
         for (int i = 0; i < splitText.length; i++) {
-            if (interrupt) {
-                logger.info("морфолога тормознули");
-                interrupt = false;
-                break;
-            }
-            String x = splitText[i];
 
+            String x = splitText[i];
             if (x.matches("[а-яА-ЯёЁ]+")) {
                 String normalWord = x.toLowerCase();
                 String normalWordTrim = normalWord.trim();
@@ -45,11 +32,7 @@ public class Morpholog {
             }
         }
         for (int i = 0; i < usefulWords.size(); i++) {
-            if (interrupt) {
-                logger.info("люцен тормознули");
-                interrupt = false;
-                break;
-            }
+
             String x = usefulWords.get(i);
             List<String> listBasedForms = luceneMorphology.getNormalForms(x);
             String basedForm = listBasedForms.get(0);
@@ -74,23 +57,17 @@ public class Morpholog {
         return listSingleLemmas;
     }
 
-    public String getListPageContents(List<Page> pages, int idSite, int maxFrequencyWord) throws InterruptedException {
+    public List<Lemma> getListPageContents(List<Page> pages, int idSite, int maxFrequencyWord) {
 
         HashMap<String, Integer> lemmaHolder = new HashMap<>();
         HashMap<String, Integer> lemmaHolderCleared = new HashMap<>();
 
-        StringBuilder stringQuery = new StringBuilder();
-        for (int i = 0; i < pages.size(); i++) {
-            if (interrupt) {
-                logger.info("лемматизатор тормознули ");
-                interrupt = false;
-                break;
-            }
-            Page x = pages.get(i);
+        for (Page page : pages) {
+
+            Page x = page;
             try {
                 if ((x.getCode() == 200) && (x.getContent() != null)) {
                     List<String> lemmas = getSingleLemmas(getLemmas(x.getContent()));
-
                     lemmas.forEach(a -> {
                         int count = (lemmaHolder.containsKey(a)) ? lemmaHolder.get(a) + 1 : 1;
                         lemmaHolder.put(a, count);
@@ -99,21 +76,22 @@ public class Morpholog {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
-
         lemmaHolder.forEach((key, value) -> {
             if (value < maxFrequencyWord) {
                 lemmaHolderCleared.put(key, value);
-
             }
-
+        });
+        List<Lemma> lemmaList = new ArrayList<>();
+        lemmaHolderCleared.forEach((key, value) -> {
+            Lemma lemma = new Lemma();
+            lemma.setLemma(key);
+            lemma.setFrequency(value);
+            lemma.setIdSite(idSite);
+            lemmaList.add(lemma);
         });
 
-        lemmaHolderCleared.forEach((key, value) -> stringQuery.append((stringQuery.length() < 1) ? "('" : ",('").append(key).append("',").
-                append(value).append(" , ").append(idSite).append(")"));
-
-        return stringQuery.toString();
+        return lemmaList;
     }
 
 
