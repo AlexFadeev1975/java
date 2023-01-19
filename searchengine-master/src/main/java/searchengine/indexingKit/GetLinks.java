@@ -1,4 +1,4 @@
-package searchengine.IndexingKit;
+package searchengine.indexingKit;
 
 import lombok.Data;
 import lombok.NonNull;

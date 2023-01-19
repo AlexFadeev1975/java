@@ -1,5 +1,4 @@
-package searchengine.IndexingKit;
-
+package searchengine.indexingKit;
 import lombok.SneakyThrows;
 import searchengine.model.*;
 import searchengine.repository.IndexRepository;

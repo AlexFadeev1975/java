@@ -2,8 +2,8 @@ package searchengine.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import searchengine.IndexingKit.Morpholog;
-import searchengine.IndexingKit.SearchSystem;
+import searchengine.indexingKit.Morpholog;
+import searchengine.indexingKit.SearchSystem;
 import searchengine.model.*;
 import searchengine.repository.IndexRepository;
 import searchengine.repository.LemmaRepository;

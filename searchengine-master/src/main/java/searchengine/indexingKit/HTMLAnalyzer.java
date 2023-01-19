@@ -1,4 +1,4 @@
-package searchengine.IndexingKit;
+package searchengine.indexingKit;
 
 import lombok.NonNull;
 import org.jsoup.Connection;

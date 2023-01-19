@@ -1,4 +1,4 @@
-package searchengine.IndexingKit;
+package searchengine.indexingKit;
 
 import searchengine.model.Index;
 import searchengine.model.Lemma;

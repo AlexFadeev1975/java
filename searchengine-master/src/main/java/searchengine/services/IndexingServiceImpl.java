@@ -2,7 +2,7 @@ package searchengine.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import searchengine.IndexingKit.*;
+import searchengine.indexingKit.*;
 import searchengine.config.SitesList;
 import searchengine.model.Site;
 import searchengine.model.StatusSite;

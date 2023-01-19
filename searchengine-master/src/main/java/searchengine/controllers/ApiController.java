@@ -124,16 +124,16 @@ public class ApiController extends Thread {
     public ResponseEntity<SearchResponse> search(String query,
                                                  String site,
                                                  int offset,
-                                                 int limit) throws IOException, InterruptedException {
+                                                 int limit) throws IOException {
 
         SearchResponse searchResponse;
 
         if (!query.isEmpty()) {
             List<ResultPage> resultPageList = searchService.searchEngine(query, site, offset, limit);
             if (!(resultPageList == null)) {
-                searchResponse = (!resultPageList.isEmpty()) ? new SearchResponse(true, resultPageList.size(),
-                        resultPageList) : new SearchResponse(false, "Страниц не найдено");
-            } else searchResponse = new SearchResponse(false, "Указанный сайт не входит в индекс");
+                searchResponse = new SearchResponse(true, resultPageList.size(),
+                        resultPageList);
+            } else searchResponse = new SearchResponse(true, "Страниц не найдено");
         } else searchResponse = new SearchResponse(false, "Задан пустой поисковый запрос");
 
         if (searchResponse.isResult()) {

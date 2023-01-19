@@ -1,4 +1,4 @@
-package searchengine.IndexingKit;
+package searchengine.indexingKit;
 
 import org.tartarus.snowball.ext.RussianStemmer;
 import searchengine.model.*;
@@ -79,7 +79,6 @@ public class SearchSystem {
     private String getSnippet(String content, List<Lemma> lemmas) {
 
         String clearedContent = content.replaceAll("[\"*»*«*\\.*\\,*(*)*]", " ");
-        // String clearedContent = content.replaceAll("\\w", " ");
         String[] arrContent = clearedContent.split(" ");
         List<String> stemList = new ArrayList<>();
         String snippet = "";
@@ -90,7 +89,7 @@ public class SearchSystem {
         lemmaSet.forEach(l -> stemList.add(getStem(l)));
         List<String> compareList = new ArrayList<>();
         for (int i = 0; i < arrContent.length; i++) {
-            String currentWord = arrContent[i];
+            String currentWord = arrContent[i].toLowerCase(Locale.ROOT);
             String newWord = currentWord.replace("\"", "");
             String currentStem = getStem(newWord);
 
