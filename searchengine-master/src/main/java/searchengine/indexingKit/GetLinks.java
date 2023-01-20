@@ -71,8 +71,8 @@ public class GetLinks {
 
                     if (links.size() == 1) {
                         String reference = links.attr("abs:href");
-                        boolean add = setLinks.add(reference);
-                        if (add && reference.contains(site)) {
+
+                        if (setLinks.add(reference) && reference.contains(site)) {
                             resultLinks.add(reference);
                             new ReadAllLinks(reference);
                         }
@@ -80,8 +80,7 @@ public class GetLinks {
                         List<ReadAllLinks> taskList = new ArrayList<>();
                         links.stream().map((link) -> link.attr("abs:href")).forEachOrdered((reference) -> {
 
-                            boolean add = setLinks.add(reference);
-                            if (add && ((reference.contains("://" + site)) || (reference.contains("://www." + site)))) {
+                            if (setLinks.add(reference) && ((reference.contains("://" + site)) || (reference.contains("://www." + site)))) {
                                 resultLinks.add(reference);
                                 ReadAllLinks task = new ReadAllLinks(reference);
                                 task.fork();
