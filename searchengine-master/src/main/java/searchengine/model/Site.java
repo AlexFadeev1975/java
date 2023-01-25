@@ -17,7 +17,6 @@ public class Site implements Serializable {
     private int id;
 
     @Column(name = "\"status\"")
-
     @Enumerated(EnumType.STRING)
     private StatusSite status;
 

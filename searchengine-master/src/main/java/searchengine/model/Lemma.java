@@ -23,4 +23,5 @@ public class Lemma implements Serializable {
     @Column(name = "frequency")
     private int frequency;
 
+
 }

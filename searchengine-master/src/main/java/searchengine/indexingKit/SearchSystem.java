@@ -20,8 +20,11 @@ public class SearchSystem {
             lemmaList.forEach(l -> tempSet.add(l.getLemma()));
 
             mapPageIdLemmaId.forEach(x -> {
-                listPageId.add(x.getPageId());
-                if (Collections.frequency(listPageId, x.getPageId()) == tempSet.size()) {
+                int pageID = x.getPageId();
+                listPageId.add(pageID);
+                int pageFrequency = Collections.frequency(listPageId, x.getPageId());
+                int passedFrequency = tempSet.size();
+                if (pageFrequency == passedFrequency) {
                     int pageId = x.getPageId();
                     float rank = x.getRank();
                     float absRank = (mapPageIdToRank.containsKey(pageId)) ? mapPageIdToRank.get(pageId) + rank : rank;
@@ -57,7 +60,7 @@ public class SearchSystem {
             }
             resultPageList.sort(Comparator.comparing(ResultPage::getRelevance).reversed());
             if (offset < resultPageList.size()) {
-                List<ResultPage> totalPageList = resultPageList.subList(offset, resultPageList.size() - 1);
+                List<ResultPage> totalPageList = resultPageList.subList(offset, resultPageList.size());
                 if (totalPageList.size() > limit) {
                     resultPageList = totalPageList.subList(0, limit);
                 } else {
@@ -99,6 +102,9 @@ public class SearchSystem {
                 compareList.add(currentStem);
                 arrContent[i] = "<b>" + arrContent[i] + "</b>";
             }
+            if (compareList.contains(currentStem)) {
+                arrContent[i] = "<b>" + arrContent[i] + "</b>";
+            }
             if (stemList.contains(currentStem) & !compareList.contains(currentStem) & (compareList.size() <= lemmaSet.size())) {
                 endWord = i;
                 compareList.add(currentStem);
@@ -107,10 +113,10 @@ public class SearchSystem {
         }
         startWord = (startWord != 0) ? startWord - 1 : startWord;
         endWord = startWord + 50;
-//        endWord = (endWord != arrContent.length - 1) ? endWord + 2: endWord;
-//        if ((endWord - startWord) < 30) {
-//            endWord = startWord + 30;
-//        }
+        //       endWord = (endWord != arrContent.length - 1) ? endWord + 2: endWord;
+        //      if ((endWord - startWord) < 30) {
+        //         endWord = startWord + 30;
+        //      }
         String[] arrSnippet = Arrays.copyOfRange(arrContent, startWord, endWord);
         snippet = String.join(" ", arrSnippet);
         return snippet;

@@ -17,6 +17,7 @@ import searchengine.services.StatisticsService;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 @RestController
@@ -64,7 +65,7 @@ public class ApiController extends Thread {
     }
 
     @PostMapping("/indexPage")
-    public ResponseEntity<IndexingResponse> startOneSiteIndexing(@RequestBody String url) throws InterruptedException, IOException {
+    public ResponseEntity<IndexingResponse> startOneSiteIndexing(@RequestBody String url) throws InterruptedException, IOException, ExecutionException {
         IndexingResponse indexingResponse = null;
         if (!url.isEmpty()) {
             String result = java.net.URLDecoder.decode(url, StandardCharsets.UTF_8);
@@ -81,14 +82,17 @@ public class ApiController extends Thread {
                 indexingResponse = new IndexingResponse(false, "Данная страница находится за пределами сайтов, " +
                         "указанных в конфигурационном файле");
             } else {
+                isRun = false;
                 if (indexingService.oneIndexingSite(site)) {
-                    isRun = false;
                     indexingResponse = new IndexingResponse(true);
+                    isRun = true;
                     return ResponseEntity.ok(indexingResponse);
+
                 } else {
                     indexingResponse = new IndexingResponse(false, "Индексация уже запущена");
 
                 }
+
             }
         }
         if (indexingResponse.isResult()) {
@@ -133,7 +137,7 @@ public class ApiController extends Thread {
             if (!(resultPageList == null)) {
                 searchResponse = new SearchResponse(true, resultPageList.size(),
                         resultPageList);
-            } else searchResponse = new SearchResponse(true, "Страниц не найдено");
+            } else searchResponse = new SearchResponse(true, "Страниц не найдено либо запущена индексация страниц");
         } else searchResponse = new SearchResponse(false, "Задан пустой поисковый запрос");
 
         if (searchResponse.isResult()) {

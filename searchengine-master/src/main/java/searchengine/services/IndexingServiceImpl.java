@@ -2,8 +2,8 @@ package searchengine.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import searchengine.indexingKit.*;
 import searchengine.config.SitesList;
+import searchengine.indexingKit.*;
 import searchengine.model.Site;
 import searchengine.model.StatusSite;
 import searchengine.repository.IndexRepository;
@@ -69,16 +69,18 @@ public class IndexingServiceImpl implements IndexingService {
     }
 
     @Override
-    public boolean oneIndexingSite(searchengine.config.Site link) throws NullPointerException {
+    public boolean oneIndexingSite(searchengine.config.Site link) throws NullPointerException, ExecutionException, InterruptedException {
 
         if (siteRepository.findByStatus(StatusSite.INDEXING).isEmpty()) {
             executorService = Executors.newFixedThreadPool(processorsCount);
-            executorService.submit(new IndexingSite(siteRepository, pageRepository,
+            Future future = executorService.submit(new IndexingSite(siteRepository, pageRepository,
                     lemmaRepository, indexRepository, morpholog, indexer, getLinks, link));
+            future.get();
+            executorService.shutdown();
             if (executorService.isShutdown()) {
                 logger.info("Индексация завершена");
             }
-            executorService.shutdown();
+
             return true;
         } else return false;
     }

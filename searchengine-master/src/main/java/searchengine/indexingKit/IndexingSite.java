@@ -1,4 +1,5 @@
 package searchengine.indexingKit;
+
 import lombok.SneakyThrows;
 import searchengine.model.*;
 import searchengine.repository.IndexRepository;
@@ -6,6 +7,7 @@ import searchengine.repository.LemmaRepository;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -46,6 +48,13 @@ public class IndexingSite implements Runnable {
 
             if (!siteList.isEmpty()) {
                 int idSite = siteList.get(0).getId();
+                List<Page> pageList = pageRepository.findAllByIdSite(idSite);
+                List<Integer> pageIdList = new ArrayList<>();
+                pageList.forEach(page -> {
+                    pageIdList.add(page.getId());
+                });
+                List<Index> indexList = indexRepository.findByPageIdIn(pageIdList);
+                indexRepository.deleteAll(indexList);
                 siteRepository.deleteById(idSite);
             }
             Site site = new Site();
@@ -67,13 +76,14 @@ public class IndexingSite implements Runnable {
 
             lemmaRepository.saveAllAndFlush(lemmaList);
 
-            List<Page> listPages = pageRepository.findAll();
+            List<Page> listPages = pageRepository.findAllByIdSite(idSite);
 
-            List<Lemma> listLemmas = lemmaRepository.findAll();
+            List<Lemma> listLemmas = lemmaRepository.findAllByIdSite(idSite);
 
             List<Index> indexList = indexer.indexer(listPages, listLemmas);
 
             indexRepository.saveAll(indexList);
+            indexList.clear();
 
             if (!listPages.isEmpty() && !listLemmas.isEmpty()) {
                 site.setStatus(StatusSite.INDEXED);

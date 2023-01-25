@@ -53,6 +53,7 @@ public class Indexer {
                                 index.setRank(rank.get());
                                 indexList.add(index);
                                 tempList.add(tl);
+
                             }
                         }
                     }
@@ -70,6 +71,7 @@ public class Indexer {
                                 index.setPageId(pageId);
                                 index.setRank(rank.get());
                                 indexList.add(index);
+                                tempList.add(bl);
                             }
                         }
                     }
