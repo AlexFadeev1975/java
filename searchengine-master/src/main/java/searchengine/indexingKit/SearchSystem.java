@@ -59,14 +59,7 @@ public class SearchSystem {
                 resultPageList.add(resultPage);
             }
             resultPageList.sort(Comparator.comparing(ResultPage::getRelevance).reversed());
-            if (offset < resultPageList.size()) {
-                List<ResultPage> totalPageList = resultPageList.subList(offset, resultPageList.size());
-                if (totalPageList.size() > limit) {
-                    resultPageList = totalPageList.subList(0, limit);
-                } else {
-                    resultPageList = totalPageList;
-                }
-            }
+
             return resultPageList;
         } else return null;
     }

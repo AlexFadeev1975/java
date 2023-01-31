@@ -135,7 +135,16 @@ public class ApiController extends Thread {
         if (!query.isEmpty()) {
             List<ResultPage> resultPageList = searchService.searchEngine(query, site, offset, limit);
             if (!(resultPageList == null)) {
-                searchResponse = new SearchResponse(true, resultPageList.size(),
+                int countPages = resultPageList.size();
+                if (offset < resultPageList.size()) {
+                    List<ResultPage> totalPageList = resultPageList.subList(offset, resultPageList.size());
+                    if (totalPageList.size() > limit) {
+                        resultPageList = totalPageList.subList(0, limit);
+                    } else {
+                        resultPageList = totalPageList;
+                    }
+                }
+                searchResponse = new SearchResponse(true, countPages,
                         resultPageList);
             } else searchResponse = new SearchResponse(true, "Страниц не найдено либо запущена индексация страниц");
         } else searchResponse = new SearchResponse(false, "Задан пустой поисковый запрос");
