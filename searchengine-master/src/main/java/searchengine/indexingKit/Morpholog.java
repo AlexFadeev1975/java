@@ -39,8 +39,8 @@ public class Morpholog {
             List<String> wordInfo = luceneMorphology.getMorphInfo(basedForm);
             String[] info = wordInfo.get(0).split("\\|");
             String[] wordReview = info[1].split(" ");
-            if (wordReview[1].matches("С") || (wordReview[1].matches("П")) ||
-                    (wordReview[1].matches("Г"))) {
+            if (wordReview[1].matches("С") || (wordReview[1].matches("П")) || (wordReview[1].matches("ИНФИНИТИВ"))
+                    || (wordReview[1].matches("ЧИСЛ-П")) || (wordReview[1].matches("ЧИСЛ"))) {
                 listLemmas.add(basedForm);
             }
         }
@@ -64,10 +64,9 @@ public class Morpholog {
 
         for (Page page : pages) {
 
-            Page x = page;
             try {
-                if ((x.getCode() == 200) && (x.getContent() != null)) {
-                    List<String> lemmas = getSingleLemmas(getLemmas(x.getContent()));
+                if ((page.getCode() == 200) && (page.getContent() != null)) {
+                    List<String> lemmas = getSingleLemmas(getLemmas(page.getContent()));
                     lemmas.forEach(a -> {
                         int count = (lemmaHolder.containsKey(a)) ? lemmaHolder.get(a) + 1 : 1;
                         lemmaHolder.put(a, count);

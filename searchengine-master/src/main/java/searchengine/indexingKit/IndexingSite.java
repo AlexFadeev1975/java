@@ -1,12 +1,9 @@
 package searchengine.indexingKit;
-
-import lombok.SneakyThrows;
 import searchengine.model.*;
 import searchengine.repository.IndexRepository;
 import searchengine.repository.LemmaRepository;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,7 +15,6 @@ public class IndexingSite implements Runnable {
     public PageRepository pageRepository;
     public LemmaRepository lemmaRepository;
     public IndexRepository indexRepository;
-
     private Morpholog morpholog;
     private Indexer indexer;
     private GetLinks getLinks;
@@ -35,7 +31,7 @@ public class IndexingSite implements Runnable {
         this.link = link;
     }
 
-    @SneakyThrows
+
     @Override
     public void run() {
 
@@ -50,9 +46,7 @@ public class IndexingSite implements Runnable {
                 int idSite = siteList.get(0).getId();
                 List<Page> pageList = pageRepository.findAllByIdSite(idSite);
                 List<Integer> pageIdList = new ArrayList<>();
-                pageList.forEach(page -> {
-                    pageIdList.add(page.getId());
-                });
+                pageList.forEach(page -> { pageIdList.add(page.getId()); });
                 List<Index> indexList = indexRepository.findByPageIdIn(pageIdList);
                 indexRepository.deleteAll(indexList);
                 siteRepository.deleteById(idSite);
@@ -70,7 +64,7 @@ public class IndexingSite implements Runnable {
 
             List<Page> pages = getLinks.linkStorage(GetLinks.ReadAllLinks.resultLinks, idSite);
 
-            pageRepository.saveAll(pages);
+            pageRepository.saveAllAndFlush(pages);
 
             List<Lemma> lemmaList = morpholog.getListPageContents(pages, idSite, pages.size());
 
@@ -82,16 +76,18 @@ public class IndexingSite implements Runnable {
 
             List<Index> indexList = indexer.indexer(listPages, listLemmas);
 
-            indexRepository.saveAll(indexList);
+            indexRepository.saveAllAndFlush(indexList);
             indexList.clear();
 
             if (!listPages.isEmpty() && !listLemmas.isEmpty()) {
                 site.setStatus(StatusSite.INDEXED);
+                site.setLastError("Не обнаружено");
             } else {
                 site.setStatus(StatusSite.FAILED);
+                site.setLastError("Сайт не содержит контента");
             }
 
-            siteRepository.updateStatusSiteAndStatusTime(site.getStatus(), new Date(), site.getId());
+            siteRepository.updateStatusSiteAndStatusTimeAndLastError(site.getStatus(), new Date(), site.getLastError(), site.getId());
 
         }
 

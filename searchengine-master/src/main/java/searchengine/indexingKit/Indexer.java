@@ -1,79 +1,42 @@
 package searchengine.indexingKit;
-
 import searchengine.model.Index;
 import searchengine.model.Lemma;
 import searchengine.model.Page;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Logger;
 
 public class Indexer {
 
     Morpholog morpholog = new Morpholog();
-    Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    List<String> titleLemmas = new ArrayList<>();
+    List<String> bodyLemmas = new ArrayList<>();
 
-    public Indexer() throws InterruptedException {
+    List<Index> indexList = new ArrayList<>();
+    int pageId;
+    public Indexer()  {
     }
 
-    public List<Index> indexer(List<Page> pages, List<Lemma> lemmas) throws IOException {
+    public List<Index> indexer(List<Page> pages, List<Lemma> lemmas)  {
 
-        List<Index> indexList = new ArrayList<>();
         for (Page x : pages) {
-
+            List<String> tempList = new ArrayList<>();
             String content = x.getContent();
             if (x.getCode() == 200 && content.contains("zzz")) {
-                List<String> titleLemmas = new ArrayList<>();
-                List<String> bodyLemmas = new ArrayList<>();
-                AtomicInteger idLemma = new AtomicInteger();
-                AtomicReference<Float> rank = new AtomicReference(0.0F);
-                int pageId = x.getId();
 
+                pageId = x.getId();
                 String[] splitContent = content.split("zzz");
                 try {
                     titleLemmas = morpholog.getLemmas(splitContent[0]);
                     bodyLemmas = morpholog.getLemmas(splitContent[1]);
-                    List<String> tempList = new ArrayList<>();
-                    List<String> finalBodyLemmas = bodyLemmas;
+
                     for (String tl : titleLemmas) {
-
-                        if (!tempList.contains(tl)) {
-                            float count = (Collections.frequency(finalBodyLemmas, tl));
-                            rank.set((float) (1.0 + count * 0.8));
-                            int id = findIdLemma(lemmas, tl);
-                            if (id != 0) {
-                                idLemma.set(id);
-                                Index index = new Index();
-                                index.setLemmaId(idLemma.get());
-                                index.setPageId(pageId);
-                                index.setRank(rank.get());
-                                indexList.add(index);
-                                tempList.add(tl);
-
-                            }
-                        }
+                        indexSet(tl, bodyLemmas, true, lemmas, tempList);
                     }
-                    List<String> finalBodyLemmas1 = bodyLemmas;
                     for (String bl : bodyLemmas) {
-
-                        if (!tempList.contains(bl)) {
-                            float count = (Collections.frequency(finalBodyLemmas1, bl));
-                            rank.set((float) (count * 0.8));
-                            int id = findIdLemma(lemmas, bl);
-                            if (id != 0) {
-                                idLemma.set(id);
-                                Index index = new Index();
-                                index.setLemmaId(idLemma.get());
-                                index.setPageId(pageId);
-                                index.setRank(rank.get());
-                                indexList.add(index);
-                                tempList.add(bl);
-                            }
-                        }
+                        indexSet(bl, bodyLemmas, false, lemmas, tempList);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -81,6 +44,21 @@ public class Indexer {
             }
         }
         return indexList;
+    }
+    private void indexSet (String lemma, List<String> bodyLemmas, boolean lemmaSwitch,  List<Lemma> lemmas, List <String> tempList) {
+      if (!tempList.contains(lemma)) {
+          float count = (Collections.frequency(bodyLemmas, lemma));
+          float rank = (lemmaSwitch) ? ((float) (1.0 + count * 0.8)) : ((float)(count * 0.8)) ;
+          int id = findIdLemma(lemmas, lemma);
+          if (id != 0) {
+              Index index = new Index();
+              index.setLemmaId(id);
+              index.setPageId(pageId);
+              index.setRank(rank);
+              indexList.add(index);
+              tempList.add(lemma);
+          }
+      }
     }
 
     private int findIdLemma(List<Lemma> lemmas, String lemma) {

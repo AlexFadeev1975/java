@@ -3,22 +3,25 @@ package searchengine.indexingKit;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import searchengine.model.Page;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
-import java.util.logging.Logger;
+
 
 @Data
+@Log4j2
 public class GetLinks {
 
     ForkJoinPool forkJoinPool = new ForkJoinPool();
-    public Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
     @Setter
     public String url;
 
@@ -30,11 +33,11 @@ public class GetLinks {
         ReadAllLinks.setLinks = new HashSet<>();
         ReadAllLinks.resultLinks = new TreeSet<>();
         this.forkJoinPool = new ForkJoinPool();
-        Set<String> res = (Set<String>) forkJoinPool.invoke(links);
+        Set<String> res = forkJoinPool.invoke(links);
         printer(res);
     }
 
-    public static class ReadAllLinks extends RecursiveTask {
+    public static class ReadAllLinks extends RecursiveTask<Set<String>> {
 
         public static Set<String> setLinks;
         public static SortedSet<String> resultLinks;
@@ -92,7 +95,7 @@ public class GetLinks {
                         }
                     }
                 } else {
-                    System.out.println("код не 200");
+                    log.info("Code " + response.statusCode());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -102,17 +105,13 @@ public class GetLinks {
     }
 
     private void printer(Set<String> res) {
-        res.stream().forEach(System.out::println);
+        res.forEach(System.out::println);
     }
 
     public List<Page> linkStorage(Set<String> res, int idSite) {
 
-
         List<Page> pages = new ArrayList<>();
-        Iterator<String> iterator = res.iterator();
-        while (iterator.hasNext()) {
-            String x = iterator.next();
-
+        for (String x : res) {
             try {
                 HTMLAnalyzer analyzer = new HTMLAnalyzer(x, ReadAllLinks.site);
                 if ((analyzer.getPath() != null) & (analyzer.getContent() != null)) {
@@ -135,7 +134,7 @@ public class GetLinks {
 
         String[] splitLines = line.split("://");
         if (splitLines.length > 1) {
-            String[] splitLinesNext = splitLines[1].split(".");
+            String[] splitLinesNext = splitLines[1].split("\\.");
             if (splitLinesNext.length > 2) {
                 return splitLinesNext[1] + splitLinesNext[2];
             } else return splitLines[1];

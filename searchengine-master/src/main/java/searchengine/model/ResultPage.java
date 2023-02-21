@@ -9,7 +9,7 @@ public class ResultPage {
 
     private String siteName;
 
-    private String url;
+    private String uri;
 
     private String title;
 

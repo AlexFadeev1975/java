@@ -1,19 +1,24 @@
 package searchengine.indexingKit;
-
 import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
+@Log4j2
 public class HTMLAnalyzer {
 
-    public Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     String path, link, site;
     int code;
     String content;
+
+    public HTMLAnalyzer(String link, String site) throws IOException, InterruptedException {
+        this.link = link;
+        this.site = site;
+        analyser();
+    }
 
     public String getContent() {
         return content;
@@ -27,12 +32,6 @@ public class HTMLAnalyzer {
         return path;
     }
 
-    public HTMLAnalyzer(String link, String site) throws IOException, InterruptedException {
-        this.link = link;
-        this.site = site;
-        analyser();
-    }
-
     public void analyser() throws IOException {
         @NonNull
         Connection.Response response;
@@ -42,40 +41,32 @@ public class HTMLAnalyzer {
 
         code = response.statusCode();
 
-        if ((code == 200) & (!link.contains(".pdf")) & (!link.contains(".jpg"))) {
+        if ((code == 200) || (!link.contains(".pdf")) || (!link.contains(".jpg")) || (!link.contains(".mp4"))) {
 
-            Document doc = getDocumentFromUrl(link);
-            if (doc != null & link.getBytes().length < 300) {
-                String[] splitlinkBySite = link.split(site);
-                if (splitlinkBySite.length > 1) {
-                    path = splitlinkBySite[1];
-                } else path = link;
+            try {
+                Document doc = response.parse();
 
-                String title = doc.title();
-                content = title + " zzz " + doc.body().text();
-                if (content.contains("'")) {
-                    String cont = content.replaceAll("'", "");
-                    content = cont;
+                if (doc != null & link.getBytes().length < 300) {
+                    String[] splitlinkBySite = link.split(site);
+                    if (splitlinkBySite.length > 1) {
+                        path = splitlinkBySite[1];
+                    } else path = link;
+
+                    String title = doc.title();
+                    content = title + " zzz " + doc.body().text();
+                    if (content.contains("'")) {
+                        String cont = content.replaceAll("'", "");
+                        content = cont;
+                    }
                 }
+            } catch (IllegalArgumentException e) {
+                log.info("пустая ссылка");
             }
 
         } else {
 
-            logger.info("Код " + response.statusCode());
+            log.info(link + " - code " + response.statusCode());
         }
     }
 
-    public Document getDocumentFromUrl(String url) {
-        Connection.Response response = null;
-        try {
-            response = Jsoup.connect(url).userAgent("Mozilla/5.0 (Windows; U; Windows NT 6.1; rv:2.2) Gecko/20110201")
-                    .referrer("www.google.com").validateTLSCertificates(false).maxBodySize(0).ignoreHttpErrors(true).ignoreContentType(true).timeout(120000).execute();
-            Thread.sleep(150);
-            Document doc = response.parse();
-            return doc;
-        } catch (IllegalArgumentException | InterruptedException | IOException ioe) {
-
-            return null;
-        }
-    }
 }

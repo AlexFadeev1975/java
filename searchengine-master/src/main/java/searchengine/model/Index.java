@@ -33,4 +33,11 @@ public class Index implements Serializable {
         float rank = 0;
     }
 
+    public Index(int pageId, float rank) {
+        int id = 0;
+        this.pageId = pageId;
+        this.rank = rank;
+        int lemmaId = 0;
+    }
+
 }

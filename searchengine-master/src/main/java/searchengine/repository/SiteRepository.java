@@ -21,8 +21,8 @@ public interface SiteRepository extends JpaRepository<Site, Integer> {
 
     @Transactional
     @Modifying
-    @Query(value = "update Site s set s.status = ?1 , s.statusTime = ?2 where s.id = ?3")
-    void updateStatusSiteAndStatusTime(StatusSite statusSite, Date statusTime, int id);
+    @Query(value = "update Site s set s.status = ?1 , s.statusTime = ?2, s.lastError = ?3 where s.id = ?4")
+    void updateStatusSiteAndStatusTimeAndLastError(StatusSite statusSite, Date statusTime, String lastError, int id);
 
 
 }

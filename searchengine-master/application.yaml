@@ -14,10 +14,16 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-
+  logging:
+    level:
+      root: DEBUG
+      org.springframework.web: DEBUG
+      org.hibernate: DEBUG
 indexing-settings:
   sites:
     - url: https://ipfran.ru
       name: ИПФ РАН.ру
     - url: https://www.playback.ru
       name: PlayBack.Ru
+    - url: https://dombulgakova.ru/
+      name: Булгаковский дом

@@ -12,9 +12,9 @@ import searchengine.repository.SiteRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SearchServiceImpl implements SearchService {
@@ -26,40 +26,41 @@ public class SearchServiceImpl implements SearchService {
     public LemmaRepository lemmaRepository;
     @Autowired
     public IndexRepository indexRepository;
-    private Morpholog morpholog;
-    private SearchSystem searchSystem;
 
     @Override
-    public List<ResultPage> searchEngine(String searchString, String site, int offset, int limit) throws IOException {
+    public List<ResultPage> searchEngine(String searchString, String site) throws IOException {
 
-        morpholog = new Morpholog();
-        searchSystem = new SearchSystem();
+        Morpholog morpholog = new Morpholog();
+        SearchSystem searchSystem = new SearchSystem();
         List<Site> listSites = new ArrayList<>();
         List<Lemma> lemmaList = lemmaRepository.findByLemmaIn(morpholog.getLemmas(searchString));
-
+        HashMap<Integer, Double> mapPageIdToRank = new HashMap<>();
         List<Site> siteList = siteRepository.findByStatus(StatusSite.INDEXING);
 
         if (!lemmaList.isEmpty() & siteList.isEmpty()) {
-            lemmaList.sort(Comparator.comparingInt(Lemma::getFrequency));
-            List<Index> indexList = indexRepository.findDistinctByLemmaIdIn(lemmaList.stream().map(Lemma::getId).toList());
 
-            HashMap<Integer, Float> mapPageIdToRank = searchSystem.pageIdAndRelRankFinder(indexList, lemmaList);
+            int count = (lemmaList.stream().map(Lemma::getLemma)).collect(Collectors.toSet()).size();
+
+            List<Object[]> idPageListAndAbsRank = indexRepository.findPageIdAndRankFromLemmaIdWithCountLemmaId(lemmaList.stream().map(Lemma::getId).toList(), count);
+            idPageListAndAbsRank.forEach(x -> {
+                mapPageIdToRank.put((int) x[0], (double) x[1]);
+            });
 
             List<Page> resultPages = pageRepository.findAllById(mapPageIdToRank.keySet().stream().toList());
+
             if (site != null) {
                 List<Site> listSite = siteRepository.findByUrl(site);
                 Site findedSite = listSite.get(0);
                 if (findedSite == null) {
                     return new ArrayList<>();
                 } else {
-
                     listSites.add(findedSite);
-                    return searchSystem.getResultPages(mapPageIdToRank, resultPages, lemmaList, listSites, offset, limit);
+                    return searchSystem.getResultPages(mapPageIdToRank, resultPages, lemmaList, listSites);
                 }
             } else {
                 listSites = siteRepository.findAll();
 
-                return searchSystem.getResultPages(mapPageIdToRank, resultPages, lemmaList, listSites, offset, limit);
+                return searchSystem.getResultPages(mapPageIdToRank, resultPages, lemmaList, listSites);
             }
         } else return null;
 

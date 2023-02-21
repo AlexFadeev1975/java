@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface SearchService {
 
-    List<ResultPage> searchEngine(String searchString, String site, int offset, int limit) throws IOException;
+    List<ResultPage> searchEngine(String searchString, String site) throws IOException;
 }
