@@ -1,4 +1,4 @@
-package searchengine.indexingKit;
+package searchengine.services.serviceKit;
 import searchengine.model.*;
 import searchengine.repository.IndexRepository;
 import searchengine.repository.LemmaRepository;
@@ -8,26 +8,26 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class IndexingSite implements Runnable {
+public class IndexingLauncher implements Runnable {
 
 
     public SiteRepository siteRepository;
     public PageRepository pageRepository;
     public LemmaRepository lemmaRepository;
     public IndexRepository indexRepository;
-    private Morpholog morpholog;
-    private Indexer indexer;
-    private GetLinks getLinks;
+    private LemmaFinder lemmaFinder;
+    private IndexBuilder indexBuilder;
+    private LinksFinder linksFinder;
     private searchengine.config.Site link;
 
-    public IndexingSite(SiteRepository siteRepository, PageRepository pageRepository, LemmaRepository lemmaRepository, IndexRepository indexRepository, Morpholog morpholog, Indexer indexer, GetLinks getLinks, searchengine.config.Site link) {
+    public IndexingLauncher(SiteRepository siteRepository, PageRepository pageRepository, LemmaRepository lemmaRepository, IndexRepository indexRepository, LemmaFinder lemmaFinder, IndexBuilder indexBuilder, LinksFinder linksFinder, searchengine.config.Site link) {
         this.siteRepository = siteRepository;
         this.pageRepository = pageRepository;
         this.lemmaRepository = lemmaRepository;
         this.indexRepository = indexRepository;
-        this.morpholog = morpholog;
-        this.indexer = indexer;
-        this.getLinks = getLinks;
+        this.lemmaFinder = lemmaFinder;
+        this.indexBuilder = indexBuilder;
+        this.linksFinder = linksFinder;
         this.link = link;
     }
 
@@ -37,8 +37,8 @@ public class IndexingSite implements Runnable {
 
         if (link != null) {
 
-            morpholog = new Morpholog();
-            indexer = new Indexer();
+            lemmaFinder = new LemmaFinder();
+            indexBuilder = new IndexBuilder();
 
             List<Site> siteList = siteRepository.findByUrl(link.getUrl());
 
@@ -60,13 +60,13 @@ public class IndexingSite implements Runnable {
             Site savedSite = siteRepository.saveAndFlush(site);
             int idSite = savedSite.getId();
 
-            getLinks = new GetLinks(site.getUrl());
+            linksFinder = new LinksFinder(site.getUrl());
 
-            List<Page> pages = getLinks.linkStorage(GetLinks.ReadAllLinks.resultLinks, idSite);
+            List<Page> pages = linksFinder.getPagesFromLinks(LinksFinder.ReadAllLinks.resultLinks, idSite);
 
             pageRepository.saveAllAndFlush(pages);
 
-            List<Lemma> lemmaList = morpholog.getListPageContents(pages, idSite, pages.size());
+            List<Lemma> lemmaList = lemmaFinder.getListPageContents(pages, idSite, pages.size());
 
             lemmaRepository.saveAllAndFlush(lemmaList);
 
@@ -74,7 +74,7 @@ public class IndexingSite implements Runnable {
 
             List<Lemma> listLemmas = lemmaRepository.findAllByIdSite(idSite);
 
-            List<Index> indexList = indexer.indexer(listPages, listLemmas);
+            List<Index> indexList = indexBuilder.getIndexList(listPages, listLemmas);
 
             indexRepository.saveAllAndFlush(indexList);
             indexList.clear();

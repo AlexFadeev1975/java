@@ -1,4 +1,4 @@
-package searchengine.indexingKit;
+package searchengine.services.serviceKit;
 
 import org.apache.lucene.morphology.LuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Morpholog {
+public class LemmaFinder {
 
-    public Morpholog() {
+    public LemmaFinder() {
     }
 
     public List<String> getLemmas(String text) throws IOException {

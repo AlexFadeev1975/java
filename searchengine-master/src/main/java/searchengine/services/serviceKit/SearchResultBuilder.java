@@ -1,4 +1,4 @@
-package searchengine.indexingKit;
+package searchengine.services.serviceKit;
 
 import org.tartarus.snowball.ext.RussianStemmer;
 import searchengine.model.Lemma;
@@ -8,14 +8,16 @@ import searchengine.model.Site;
 
 import java.util.*;
 
-public class SearchSystem {
+public class SearchResultBuilder {
 
-    public SearchSystem() {
+    public SearchResultBuilder() {
     }
 
     public List<ResultPage> getResultPages(HashMap<Integer, Double> mapPageIdToRank, List<Page> resultPages, List<Lemma> lemmaList, List<Site> listSites) {
         List<ResultPage> resultPageList = new ArrayList<>();
-        if (!mapPageIdToRank.isEmpty()) {
+        if (mapPageIdToRank.isEmpty()) {
+            return null;
+        }
             for (Page page : resultPages) {
                 ResultPage resultPage = new ResultPage();
                 Site site = getSite(page.getIdSite(), listSites);
@@ -34,7 +36,7 @@ public class SearchSystem {
             resultPageList.sort(Comparator.comparing(ResultPage::getRelevance).reversed());
 
             return resultPageList;
-        } else return null;
+
     }
 
     private String getStem(String word) {

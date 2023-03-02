@@ -1,4 +1,4 @@
-package searchengine.indexingKit;
+package searchengine.services.serviceKit;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.jsoup.Connection;
@@ -8,16 +8,16 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 
 @Log4j2
-public class HTMLAnalyzer {
+public class HTMLParser {
 
     String path, link, site;
     int code;
     String content;
 
-    public HTMLAnalyzer(String link, String site) throws IOException, InterruptedException {
+    public HTMLParser(String link, String site) throws IOException, InterruptedException {
         this.link = link;
         this.site = site;
-        analyser();
+        getContentCodePathFromLink();
     }
 
     public String getContent() {
@@ -32,7 +32,7 @@ public class HTMLAnalyzer {
         return path;
     }
 
-    public void analyser() throws IOException {
+    public void getContentCodePathFromLink() throws IOException {
         @NonNull
         Connection.Response response;
 

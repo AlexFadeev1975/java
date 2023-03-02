@@ -2,8 +2,8 @@ package searchengine.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import searchengine.indexingKit.Morpholog;
-import searchengine.indexingKit.SearchSystem;
+import searchengine.services.serviceKit.LemmaFinder;
+import searchengine.services.serviceKit.SearchResultBuilder;
 import searchengine.model.*;
 import searchengine.repository.IndexRepository;
 import searchengine.repository.LemmaRepository;
@@ -30,14 +30,15 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<ResultPage> searchEngine(String searchString, String site) throws IOException {
 
-        Morpholog morpholog = new Morpholog();
-        SearchSystem searchSystem = new SearchSystem();
+        LemmaFinder morpholog = new LemmaFinder();
+        SearchResultBuilder searchResultBuilder = new SearchResultBuilder();
         List<Site> listSites = new ArrayList<>();
         List<Lemma> lemmaList = lemmaRepository.findByLemmaIn(morpholog.getLemmas(searchString));
         HashMap<Integer, Double> mapPageIdToRank = new HashMap<>();
         List<Site> siteList = siteRepository.findByStatus(StatusSite.INDEXING);
-
-        if (!lemmaList.isEmpty() & siteList.isEmpty()) {
+        if (lemmaList.isEmpty() & !siteList.isEmpty()) {
+            return null;
+        };
 
             int count = (lemmaList.stream().map(Lemma::getLemma)).collect(Collectors.toSet()).size();
 
@@ -55,14 +56,13 @@ public class SearchServiceImpl implements SearchService {
                     return new ArrayList<>();
                 } else {
                     listSites.add(findedSite);
-                    return searchSystem.getResultPages(mapPageIdToRank, resultPages, lemmaList, listSites);
+                    return searchResultBuilder.getResultPages(mapPageIdToRank, resultPages, lemmaList, listSites);
                 }
             } else {
                 listSites = siteRepository.findAll();
 
-                return searchSystem.getResultPages(mapPageIdToRank, resultPages, lemmaList, listSites);
+                return searchResultBuilder.getResultPages(mapPageIdToRank, resultPages, lemmaList, listSites);
             }
-        } else return null;
 
     }
 }

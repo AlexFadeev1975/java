@@ -10,6 +10,6 @@ public interface IndexingService {
 
     void stopFullIndexing() throws InterruptedException;
 
-    boolean oneIndexingSite(searchengine.config.Site link) throws InterruptedException, IOException, ExecutionException;
+    boolean runOneSiteIndexing(searchengine.config.Site link) throws InterruptedException, IOException, ExecutionException;
 
 }

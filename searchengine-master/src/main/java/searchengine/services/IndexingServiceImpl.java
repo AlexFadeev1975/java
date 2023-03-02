@@ -3,7 +3,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import searchengine.config.SitesList;
-import searchengine.indexingKit.*;
+import searchengine.services.serviceKit.*;
 import searchengine.model.Site;
 import searchengine.model.StatusSite;
 import searchengine.repository.IndexRepository;
@@ -30,10 +30,9 @@ public class IndexingServiceImpl implements IndexingService {
     public IndexRepository indexRepository;
     private final static int processorsCount = Runtime.getRuntime().availableProcessors();
     private ExecutorService executorService;
-    private Morpholog morpholog;
-    private Indexer indexer;
-    private GetLinks getLinks;
-    private SearchSystem searchSystem;
+    private LemmaFinder lemmaFinder;
+    private IndexBuilder indexBuilder;
+    private LinksFinder linksFinder;
     private searchengine.config.Site link;
 
     public IndexingServiceImpl(SitesList sitesList) {
@@ -47,12 +46,12 @@ public class IndexingServiceImpl implements IndexingService {
             executorService = Executors.newFixedThreadPool(processorsCount);
 
             for (int i = 0; i < sitesList.getSites().size(); i++) {
-                searchengine.config.Site s = sitesList.getSites().get(i);
+                link = sitesList.getSites().get(i);
                 if (executorService.isShutdown()) {
                     break;
                 }
-                Future future = executorService.submit(new IndexingSite(siteRepository, pageRepository,
-                        lemmaRepository, indexRepository, morpholog, indexer, getLinks, s));
+                Future future = executorService.submit(new IndexingLauncher(siteRepository, pageRepository,
+                        lemmaRepository, indexRepository, lemmaFinder, indexBuilder, linksFinder, link));
                 future.get();
             }
             executorService.shutdown();
@@ -66,12 +65,12 @@ public class IndexingServiceImpl implements IndexingService {
     }
 
     @Override
-    public boolean oneIndexingSite(searchengine.config.Site link) throws NullPointerException, ExecutionException, InterruptedException {
+    public boolean runOneSiteIndexing(searchengine.config.Site link) throws NullPointerException, ExecutionException, InterruptedException {
 
         if (siteRepository.findByStatus(StatusSite.INDEXING).isEmpty()) {
             executorService = Executors.newSingleThreadExecutor();
-            Future future = executorService.submit(new IndexingSite(siteRepository, pageRepository,
-                    lemmaRepository, indexRepository, morpholog, indexer, getLinks, link));
+            Future future = executorService.submit(new IndexingLauncher(siteRepository, pageRepository,
+                    lemmaRepository, indexRepository,lemmaFinder, indexBuilder, linksFinder, link));
             future.get();
             executorService.shutdown();
             if (executorService.isShutdown()) {

@@ -160,7 +160,7 @@ public class ApiController extends Thread {
            isRun = 0;
        }
        if (isRun == 2) {
-           indexingService.oneIndexingSite(site);
+           indexingService.runOneSiteIndexing(site);
            isRun = 0;
         }
     }

@@ -1,4 +1,4 @@
-package searchengine.indexingKit;
+package searchengine.services.serviceKit;
 
 import lombok.Data;
 import lombok.NonNull;
@@ -18,7 +18,7 @@ import java.util.concurrent.RecursiveTask;
 
 @Data
 @Log4j2
-public class GetLinks {
+public class LinksFinder {
 
     ForkJoinPool forkJoinPool = new ForkJoinPool();
 
@@ -26,7 +26,7 @@ public class GetLinks {
     public String url;
 
 
-    public GetLinks(String url) {
+    public LinksFinder(String url) {
         this.url = url;
         ReadAllLinks links = new ReadAllLinks(this.url);
         ReadAllLinks.site = clearLine(this.url);
@@ -108,17 +108,17 @@ public class GetLinks {
         res.forEach(System.out::println);
     }
 
-    public List<Page> linkStorage(Set<String> res, int idSite) {
+    public List<Page> getPagesFromLinks(Set<String> res, int idSite) {
 
         List<Page> pages = new ArrayList<>();
         for (String x : res) {
             try {
-                HTMLAnalyzer analyzer = new HTMLAnalyzer(x, ReadAllLinks.site);
-                if ((analyzer.getPath() != null) & (analyzer.getContent() != null)) {
+                HTMLParser parser = new HTMLParser(x, ReadAllLinks.site);
+                if ((parser.getPath() != null) & (parser.getContent() != null)) {
                     Page page = new Page();
-                    page.setPath(analyzer.getPath());
-                    page.setCode(analyzer.getCode());
-                    page.setContent(analyzer.getContent());
+                    page.setPath(parser.getPath());
+                    page.setCode(parser.getCode());
+                    page.setContent(parser.getContent());
                     page.setIdSite(idSite);
                     pages.add(page);
                 }
