@@ -6,6 +6,11 @@ public class Configuration {
 
     public String password = "password";
 
+    public String driverClassName = "org.postgresql.Driver";
+
+    public String getDriverClassName() {
+        return driverClassName;
+    }
     public String getUrl() {
         return url;
     }
