@@ -1,3 +1,4 @@
 Manifest-Version: 1.0
-Main-Class: 
+Class-Path: .idea\out\artifacts\SpringConfig_jar\SpringConfig.jar
+Main-Class: Main
 

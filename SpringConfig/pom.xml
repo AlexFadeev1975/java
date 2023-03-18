@@ -6,7 +6,7 @@
 
     <groupId>java</groupId>
     <artifactId>SpringConfig</artifactId>
-    <version>ver 4</version>
+    <version>ver 5</version>
 
     <properties>
         <maven.compiler.source>15</maven.compiler.source>
