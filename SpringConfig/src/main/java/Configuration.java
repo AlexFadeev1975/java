@@ -1,12 +1,14 @@
 public class Configuration {
 
-    public String url = "jdbc:postgresql://localhost:5432/dbname?useSSL=false&requireSSL=false";
+    private String url = "jdbc:postgresql://localhost:5432/dbname?useSSL=false&requireSSL=false";
 
-    public String username = "username";
+    private String username = "username";
 
-    public String password = "password";
+    private String password = "password";
 
-    public String driverClassName = "org.postgresql.Driver";
+    private String driverClassName = "org.postgresql.Driver";
+
+    public Configuration() {};
 
     public String getDriverClassName() {
         return driverClassName;
